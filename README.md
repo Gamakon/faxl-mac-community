@@ -14,6 +14,11 @@ Source lives in the private faxl repos; this is a release target.
 See [faxl_tester_instructions.md](faxl_tester_instructions.md). Short version:
 Python 3.12, `pip install` the two wheels + `mlx mlx-lm`, run `faxl-proxy`.
 
+**AI agents:** read [AGENTS.md](AGENTS.md) — full operating instructions,
+plus an MCP server (`faxl-mcp`, installed with the wheel; registered by the
+included [.mcp.json](.mcp.json)) exposing start/stop/status/licence/metrics
+as typed tools.
+
 ## Current release
 
 - `faxl-0.1.0-…-arm64.whl` — **time-limited tester build** (no licence key

@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "faxl": {
+      "command": "faxl-mcp"
+    }
+  }
+}

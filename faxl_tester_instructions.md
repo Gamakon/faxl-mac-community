@@ -48,6 +48,12 @@ saved, warm vs cold latency.
   % of prompt tokens skipped (shown in the console).
 - Anything that breaks or looks wrong: **andrew@gamakon.ai**
 
+## Using it from an AI agent
+If Claude Code (or any MCP-capable agent) is doing the setup for you, point it
+at [AGENTS.md](AGENTS.md) in this directory — full operating instructions plus
+an MCP server (`faxl-mcp`, installed with the wheel) that exposes
+start/stop/status/licence/metrics as typed tools.
+
 ## Notes
 - Offline: nothing phones home; no licence server; prompts never leave your Mac.
 - The cache stores model state and hashes, not readable prompt text.
