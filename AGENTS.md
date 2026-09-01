@@ -103,14 +103,18 @@ proxy, and check `curl -s localhost:8080/health` — the `licence` block shows
 
 ## Settings that are safe vs. NOT safe to change
 
-Safe: `FAXL_MODEL` (per-model states coexist in one store), `FAXL_BLOBS`
-(the store; `FAXL_DB` defaults to `$FAXL_BLOBS/ultradim_db`),
-`FAXL_NOCACHE=1` (bypass, for A/B comparisons), `FAXL_LICENCE`.
+Safe: `FAXL_MODEL` (per-model states coexist in one store — every checkpoint
+is keyed and verified under a namespace of model+config, so models can never
+serve each other's state), `FAXL_BLOBS` (the store; `FAXL_DB` defaults to
+`$FAXL_BLOBS/ultradim_db`), `FAXL_NOCACHE=1` (bypass, for A/B comparisons),
+`FAXL_LICENCE`.
 
-**NOT safe** — these define the key/state namespace and changing them strands
-or corrupts an existing store: `FAXL_SEEDS`, `FAXL_CKPT_EVERY`,
-`FAXL_CKPT_RATIO`. Never set these on a store you want to keep, and never
-work around a problem by changing them.
+**Namespace-defining** — changing these puts you in a new namespace, so an
+existing store's checkpoints stop being served (loudly, at boot — never
+corruption): `FAXL_SEEDS`, `FAXL_CKPT_EVERY`, `FAXL_CKPT_RATIO`. Never
+change them to work around a problem. A store written by an older faxl
+loads only after a one-time `FAXL_NS_ADOPT=1` boot — set it only if the
+store was written by exactly the current model and settings.
 
 **Never delete the store to "fix" an issue unless the operator asks — it is
 the accumulated value.** Stopping and restarting the proxy is always safe:
