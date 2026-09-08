@@ -93,7 +93,7 @@ traffic is the honest measure (the reference run cut paid prompt processing
 
 The current release in this directory is a **time-limited tester build**: it
 needs NO licence key. It stops accelerating about 12 months after its build
-date (`BOMB_EPOCH.txt`); the proxy itself keeps serving, every prompt
+date (expiry as a unix epoch in `EXPIRY_EPOCH.txt`); the proxy itself keeps serving, every prompt
 processed cold. Named 1-year keys come from faxl.ai.
 
 With a licensed build, the cache does nothing without a valid key: save the

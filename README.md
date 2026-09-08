@@ -19,11 +19,20 @@ plus an MCP server (`faxl-mcp`, installed with the wheel; registered by the
 included [.mcp.json](.mcp.json)) exposing start/stop/status/licence/metrics
 as typed tools.
 
+## Shared server
+
+Running one Mac (e.g. a lab Mac Studio) as a long-lived proxy for several
+people is supported. Note the proxy has **no authentication** and binds to
+loopback by default; the tester guide's
+[shared server section](faxl_tester_instructions.md#running-it-as-a-shared-server-eg-a-lab-mac-studio)
+covers exposure, concurrency, storage caps, Qwen settings and a launchd
+service definition.
+
 ## Current release
 
 - `faxl-0.1.0-…-arm64.whl` — **time-limited tester build** (no licence key
   needed; stops accelerating ~12 months after build; the proxy itself keeps
-  working). Build epoch in `BOMB_EPOCH.txt`.
+  working). Expiry (unix epoch) in `EXPIRY_EPOCH.txt`.
 - `UltraDim-0.3.7-…-cp312-….whl` — the index wheel (Python 3.12).
 
 Licensed builds (named 1-year keys from faxl.ai) replace the tester build at
@@ -31,8 +40,10 @@ launch; monthly wheel refreshes carry a 14-month validity cap.
 
 ## Licence
 
-The faxl community wheel is distributed under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md): free for noncommercial
-use as the licence defines it. Commercial use requires a commercial licence
-from Gamakon Ltd — andrew@gamakon.ai. UltraDim is a separate proprietary
-Gamakon product distributed alongside for use with faxl only.
+| component | licence |
+|---|---|
+| `faxl-*.whl` + this repo's docs | [PolyForm Noncommercial 1.0.0](LICENSE.md) — free for noncommercial use as the licence defines it; commercial use needs a commercial licence from Gamakon Ltd (andrew@gamakon.ai) |
+| `UltraDim-*.whl` | [proprietary](LICENSE-UltraDim.md) — licensed for use as a component of faxl only |
+
+See also [NOTICE.md](NOTICE.md) (AI-training / text-and-data-mining rights
+reserved).

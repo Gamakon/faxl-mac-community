@@ -48,6 +48,77 @@ saved, warm vs cold latency.
   % of prompt tokens skipped (shown in the console).
 - Anything that breaks or looks wrong: **andrew@gamakon.ai**
 
+## Running it as a shared server (e.g. a lab Mac Studio)
+
+One Mac serving several people is a supported setup, with a few things to
+get right first.
+
+**There is no authentication.** Any API key is accepted and `/console` is
+open. The proxy binds to loopback (`127.0.0.1`) by default; setting
+`FAXL_HOST=0.0.0.0` exposes it to the network and it prints a warning at boot.
+Either:
+- keep it on loopback and put Caddy or nginx in front with basic auth or a
+  bearer-token check (recommended on a university network), or
+- bind to the LAN and rely on the macOS firewall plus a trusted subnet
+  (fine for a lab room, not campus-wide).
+
+**Concurrency.** Inference runs one request at a time behind a lock; the
+HTTP layer is threaded, so simultaneous callers queue rather than fail.
+Streaming works through the queue. Latency stacks when several people submit
+at once.
+
+**Storage.** Put the store on the internal SSD. `FAXL_STORE_CAP_GB` (default
+60) caps the store; at the cap, new checkpoints are skipped loudly while
+existing ones keep serving. A Mac Studio with a large disk can go much
+higher. Set `FAXL_METRICS` to a durable path (its default is under `/tmp`).
+
+**Qwen.** `FAXL_MODEL=mlx-community/<Qwen repo>`. For Qwen3,
+`FAXL_ENABLE_THINKING=0|1` sets the default thinking mode when a client does
+not specify one. Qwen tokenizers do not need `FAXL_TRUST_REMOTE_CODE`.
+
+**Attribution.** `FAXL_TENANT` labels telemetry; set it to your lab's name.
+
+**Run under launchd** as a LaunchAgent for a dedicated user so it survives
+reboots and crashes. Model load takes minutes after every start and the
+store warm-starts, so restarts are always safe; stopping is a plain SIGTERM.
+Save this as `~/Library/LaunchAgents/ai.faxl.proxy.plist` (edit the paths,
+model and tenant), then `launchctl load ~/Library/LaunchAgents/ai.faxl.proxy.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>ai.faxl.proxy</string>
+  <key>ProgramArguments</key>
+  <array><string>/Users/faxl/faxl-env/bin/faxl-proxy</string></array>
+  <key>EnvironmentVariables</key><dict>
+    <key>FAXL_HOST</key><string>127.0.0.1</string>
+    <key>FAXL_PORT</key><string>8080</string>
+    <key>FAXL_MODEL</key><string>mlx-community/Qwen3-32B-8bit</string>
+    <key>FAXL_BLOBS</key><string>/Users/faxl/faxl-store</string>
+    <key>FAXL_STORE_CAP_GB</key><string>400</string>
+    <key>FAXL_METRICS</key><string>/Users/faxl/faxl-store/metrics.jsonl</string>
+    <key>FAXL_TENANT</key><string>your-lab-name</string>
+  </dict>
+  <key>KeepAlive</key><true/>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/Users/faxl/faxl-proxy.log</string>
+  <key>StandardErrorPath</key><string>/Users/faxl/faxl-proxy.log</string>
+</dict></plist>
+```
+
+Stop the Mac sleeping: `sudo pmset -a sleep 0 disksleep 0`.
+
+**Do not change** `FAXL_SEEDS`, `FAXL_CKPT_EVERY` or `FAXL_CKPT_RATIO` once the
+store has content (they define the store namespace), and never delete the
+store to fix a problem: stop, fix, restart.
+
+**Wheel refreshes.** `pip install` the new wheel into the same venv, then
+restart the service. The store carries over.
+
+**Health.** `curl -s localhost:8080/health` and `/metrics`; the console at
+`/console`.
+
 ## Using it from an AI agent
 If Claude Code (or any MCP-capable agent) is doing the setup for you, point it
 at [AGENTS.md](AGENTS.md) in this directory — full operating instructions plus

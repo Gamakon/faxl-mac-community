@@ -1,3 +1,15 @@
+Required Notice: Copyright 2026 Gamakon Ltd (https://gamakon.ai)
+
+The **faxl** community wheel (`faxl-*.whl`) and the documentation in this
+repository are licensed by Gamakon Ltd under the PolyForm Noncommercial
+License 1.0.0, reproduced in full below. Commercial use requires a separate
+commercial licence from Gamakon Ltd (andrew@gamakon.ai).
+
+**UltraDim** (`UltraDim-*.whl`) is NOT covered by this licence — see
+[LICENSE-UltraDim.md](LICENSE-UltraDim.md).
+
+---
+
 # PolyForm Noncommercial License 1.0.0
 
 <https://polyformproject.org/licenses/noncommercial/1.0.0>
