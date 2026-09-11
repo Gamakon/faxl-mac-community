@@ -12,7 +12,11 @@ and multi-turn prompts get their first token back far faster, with
 ## What you need
 - A Mac with Apple silicon (M1–M4).
 - **Python 3.12** (`brew install python@3.12` if missing).
-- ~40 GB free disk (one-time model download).
+- Disk: ~40 GB for the one-time model download, **plus** room for the cache
+  store, which is the larger number. Checkpoints run to roughly 110 KB per
+  token on a 3B model and scale with model size, so a 1,024-token checkpoint
+  is ~112 MB. Budget in hundreds of GB for real use and cap it with
+  `FAXL_STORE_CAP_GB` (default 60).
 - The two wheels shipped with this file: `faxl-…-arm64.whl` and
   `UltraDim-…-cp312-…-arm64.whl`.
 
@@ -127,6 +131,13 @@ start/stop/status/licence/metrics as typed tools.
 
 ## Notes
 - Offline: nothing phones home; no licence server; prompts never leave your Mac.
-- The cache stores model state and hashes, not readable prompt text.
+- **The cache stores your prompts on disk.** Alongside the model state, it
+  keeps the verbatim token-id prefix of every cached prompt (system message
+  included) under `$FAXL_BLOBS/tokens/`. Those ids decode straight back to
+  the prompt text. They are required: a hit is confirmed by comparing them
+  byte-for-byte, which is what makes reuse exact rather than a hash guess.
+  The files are written `0600` in a `0700` directory, so other users on the
+  same Mac cannot read them, but treat the store as sensitive as the prompts
+  that went into it. Nothing leaves your machine.
 - This build stops accelerating ~12 months after it was built; ask for a fresh
   build (faxl.ai) if you need longer.

@@ -120,6 +120,17 @@ store was written by exactly the current model and settings.
 the accumulated value.** Stopping and restarting the proxy is always safe:
 the store is persistent and a restarted proxy warm-starts from it.
 
+## The store holds your prompts
+
+The store keeps the verbatim token-id prefix of every cached prompt (system
+message included) under `$FAXL_BLOBS/tokens/`; those ids decode straight back
+to the prompt text. This is REQUIRED — the byte-confirm compares against them,
+which is what makes a hit exact rather than a hash guess. Files are written
+`0600` inside a `0700` directory, and a store written by an older build is
+re-moded at boot (`token records re-moded to 0600: N tightened`). Nothing
+leaves the machine, but treat the store as being as sensitive as the prompts
+that went into it.
+
 ## Troubleshooting
 
 | symptom | meaning | action |
@@ -130,5 +141,6 @@ the store is persistent and a restarted proxy warm-starts from it.
 | `FATAL: the 'faxl' wheel is not installed` | wrong interpreter | pip install the wheels into the SAME python that runs the proxy |
 | boot hangs minutes at model load | a 30GB+ model paging in | normal first time; wait |
 | `resume@` not a multiple of 256 | grid invariant violated | defect — capture logs, report to Gamakon |
+| `RuntimeError: There is no Stream(gpu, N) in current thread` on every request | pre-2026-09-11 build: no main-thread warm-up, so mlx_lm bound lazy state to a worker thread (llama-family archs only) | fixed — use a build whose boot log prints `warm-up: main-thread forward pass ok` |
 
 Commercial licensing and support: andrew@gamakon.ai.
