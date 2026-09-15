@@ -36,12 +36,12 @@ model (`mlx-community/granite-4.0-h-small-8bit`, ~34 GB) once. Different MLX
 model: `export FAXL_MODEL=<mlx-community/repo>` first.
 
 ## Use it
-Point **any** OpenAI-compatible client at `http://127.0.0.1:8080/v1` (any api
+Point **any** OpenAI-compatible client at `http://127.0.0.1:8767/v1` (any api
 key value; it's ignored). Send a request, then a **follow-up that extends the
 same conversation** — the shared prefix is served from cache; you'll see a
 `warm(...)` line in the proxy output and a much faster first token.
 
-**Watch it work:** open `http://127.0.0.1:8080/console` — tokens skipped, time
+**Watch it work:** open `http://127.0.0.1:8767/console` — tokens skipped, time
 saved, warm vs cold latency.
 
 ## What to report
@@ -97,7 +97,7 @@ model and tenant), then `launchctl load ~/Library/LaunchAgents/ai.faxl.proxy.pli
   <array><string>/Users/faxl/faxl-env/bin/faxl-proxy</string></array>
   <key>EnvironmentVariables</key><dict>
     <key>FAXL_HOST</key><string>127.0.0.1</string>
-    <key>FAXL_PORT</key><string>8080</string>
+    <key>FAXL_PORT</key><string>8767</string>
     <key>FAXL_MODEL</key><string>mlx-community/Qwen3-32B-8bit</string>
     <key>FAXL_BLOBS</key><string>/Users/faxl/faxl-store</string>
     <key>FAXL_STORE_CAP_GB</key><string>400</string>
@@ -120,7 +120,7 @@ store to fix a problem: stop, fix, restart.
 **Wheel refreshes.** `pip install` the new wheel into the same venv, then
 restart the service. The store carries over.
 
-**Health.** `curl -s localhost:8080/health` and `/metrics`; the console at
+**Health.** `curl -s localhost:8767/health` and `/metrics`; the console at
 `/console`.
 
 ## Using it from an AI agent
@@ -141,3 +141,8 @@ start/stop/status/licence/metrics as typed tools.
   that went into it. Nothing leaves your machine.
 - This build stops accelerating ~12 months after it was built; ask for a fresh
   build (faxl.ai) if you need longer.
+- The proxy serves on port **8767** (it was 8080 in builds before
+  2026-09-15). `FAXL_PORT` overrides it.
+- Licence keys: this build reads both the JSON keys the shop mints today and
+  the older `customer|issued|expiry|action` format. The tester build needs no
+  key at all.

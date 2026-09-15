@@ -33,12 +33,12 @@ export FAXL_BLOBS=~/faxl-store    # REQUIRED: the persistent cache store.
                                   # The default is /tmp — volatile, and the
                                   # proxy warns at boot. Always set this.
 export FAXL_MODEL=mlx-community/granite-4.0-h-small-8bit   # any mlx_lm model
-faxl-proxy                        # serves :8080; first model load takes minutes
+faxl-proxy                        # serves :8767; first model load takes minutes
 ```
 
-Then point any OpenAI-compatible client at `http://localhost:8080/v1` (any
+Then point any OpenAI-compatible client at `http://localhost:8767/v1` (any
 api key string is accepted). A live dashboard is at
-`http://localhost:8080/console`.
+`http://localhost:8767/console`.
 
 ## MCP server (typed tools, optional)
 
@@ -67,7 +67,7 @@ it does is unavailable by hand.
 
 ## Verify the cache actually works
 
-1. `curl -s localhost:8080/health` → `status: ok`.
+1. `curl -s localhost:8767/health` → `status: ok`.
 2. Run a GROWING CONVERSATION, not a repeat. Sending the identical request
    twice is NOT a valid test — a trivial response memoizer would pass it.
    Instead: send a chat request with a long context (≥ ~1,100 tokens — a few
@@ -78,7 +78,7 @@ it does is unavailable by hand.
    must read `warm(exact,confirmed,resume@N,...)` with N a multiple of 256,
    and `prefilled_tokens` must be roughly the new tokens only, far below the
    total prompt length. A third extending turn should resume deeper.
-3. `curl -s localhost:8080/metrics` → `hits`, `hit_rate`, `prefill_skipped`.
+3. `curl -s localhost:8767/metrics` → `hits`, `hit_rate`, `prefill_skipped`.
 
 Correctness invariants — report a defect if either fails:
 - a warm `resume@` that is NOT a multiple of 256;
@@ -98,8 +98,21 @@ processed cold. Named 1-year keys come from faxl.ai.
 
 With a licensed build, the cache does nothing without a valid key: save the
 key text to `~/.faxl-licence` (or point `FAXL_LICENCE` at it), restart the
-proxy, and check `curl -s localhost:8080/health` — the `licence` block shows
+proxy, and check `curl -s localhost:8767/health` — the `licence` block shows
 `licensed`, `customer`, `days_remaining`.
+
+A key is a single line, `<payload>.<signature>`, base64url, Ed25519-signed.
+Leading `#` comment lines in the file are ignored. This build reads **both**
+payload formats and tells them apart by their first byte:
+
+- **JSON** (what the shop mints now) — carries `customer`, `issued`, `expiry`
+  and optionally `action`, `product`, `tier`, `seats`, `features`. Timestamps
+  are unix epoch seconds.
+- **Legacy** `customer|issued|expiry|action` — still valid, not deprecated.
+
+`seats` is advisory and is never enforced: verification is offline with no
+phone-home, so it records what was bought, it does not limit anything. A build
+older than 2026-09-15 rejects a JSON key with `expected 4 payload fields`.
 
 ## Settings that are safe vs. NOT safe to change
 
