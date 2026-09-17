@@ -13,6 +13,10 @@ client at it.
 This repo carries the **released wheels** for the Mac community edition.
 Source lives in the private faxl repos; this is a release target.
 
+> **Publishing a wheel here?** Follow
+> `faxl-mac-dev/docs/RELEASE-CHECKLIST.md` — mandatory, top to bottom. Every
+> item on it exists because something shipped broken without it.
+
 ## What it does
 
 **Skips prompt processing you have already paid for.** A growing conversation,
