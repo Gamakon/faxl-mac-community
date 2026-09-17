@@ -77,6 +77,12 @@ loopback by default; the tester guide's
 covers exposure, concurrency, storage caps, Qwen settings and a launchd
 service definition.
 
+## Release notes
+
+[CHANGELOG.md](CHANGELOG.md) — what changed in each wheel and whether you need
+to re-download. The filename does not change between releases; check
+`EXPIRY_EPOCH.txt` or `/health` to see which build you have.
+
 ## Current release
 
 - `faxl-0.1.0-…-arm64.whl` — **time-limited tester build** (no licence key
