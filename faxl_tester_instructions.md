@@ -4,19 +4,23 @@ Thanks for testing faxl. This is a **12-month tester build**: it needs **no
 licence and no key**, runs fully offline, and simply stops accelerating after
 its built-in expiry (the proxy keeps working, just without the speed-up).
 
-faxl is a caching proxy for local LLMs on Apple silicon. When a prompt shares
-a prefix with one it has seen, it skips re-processing that prefix — repeated
-and multi-turn prompts get their first token back far faster, with
-**byte-identical** output.
+faxl is a caching proxy for local LLMs on Apple silicon, and a console with
+working apps on top of it. When a prompt shares a prefix with one it has seen,
+it skips re-processing that prefix — repeated prompts get their first token
+back far faster, with **byte-identical** output.
+
+The apps are the quickest way to see that: every photograph you tag sends the
+same instructions, so the first one pays for them and the rest reuse the
+state. The console shows the tokens it did not have to process.
 
 ## What you need
 - A Mac with Apple silicon (M1–M4).
 - **Python 3.12** (`brew install python@3.12` if missing).
-- Disk: ~40 GB for the one-time model download, **plus** room for the cache
-  store, which is the larger number. Checkpoints run to roughly 110 KB per
-  token on a 3B model and scale with model size, so a 1,024-token checkpoint
-  is ~112 MB. Budget in hundreds of GB for real use and cap it with
-  `FAXL_STORE_CAP_GB` (default 60).
+- **ffmpeg**, for voice-to-text only (`brew install ffmpeg`). Everything else
+  works without it.
+- Disk: **3 GB** for the default model, plus room for the cache store. The
+  store is capped at 60 GB by default (`FAXL_STORE_CAP_GB`); 8 GB is plenty
+  for trying the apps.
 - The two wheels shipped with this file: `faxl-…-arm64.whl` and
   `UltraDim-…-cp312-…-arm64.whl`.
 
@@ -24,25 +28,53 @@ and multi-turn prompts get their first token back far faster, with
 
 ```bash
 python3.12 -m venv faxl-env && source faxl-env/bin/activate
-pip install ./faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl ./UltraDim-0.3.7-cp312-cp312-macosx_11_0_arm64.whl mlx mlx-lm
-
-# persistent cache dirs so warmed state survives restarts
-export FAXL_BLOBS="$HOME/faxl-cache/blobs" FAXL_DB="$HOME/faxl-cache/db"
+pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+            ./UltraDim-0.3.7-cp312-cp312-macosx_11_0_arm64.whl
 faxl-proxy
 ```
 
-That's it — the engine ships inside the wheel. First run downloads the default
-model (`mlx-community/granite-4.0-h-small-8bit`, ~34 GB) once. Different MLX
-model: `export FAXL_MODEL=<mlx-community/repo>` first.
+The `[mac]` after the wheel filename pulls the Apple-silicon runtime: mlx, mlx-lm, **mlx-vlm** (the
+vision half — without it a photograph reaches the model as a placeholder and
+the answer is invented) and PyObjC, which is what lets you grant access to
+**chosen photographs** rather than your whole disk.
 
-## Use it
+Then open **http://127.0.0.1:8767/console**.
+
+First run downloads the default model, `mlx-community/Qwen3-VL-4B-Instruct-4bit`
+— **2.9 GB**, and it runs on any modern Mac. It reads images as well as text,
+which is what the apps need. A different MLX model: pick one in the console,
+or `export FAXL_MODEL=<mlx-community/repo>` before starting.
+
+## Try the apps
+
+Everything below runs on your Mac. No photograph, recording or document
+leaves it, and there is no account to create.
+
+**Tag your camera roll** — `/console/apps/cameraroll`
+Press **Choose…** and pick some photographs; macOS shows its own picker, and
+faxl can read only what you select. Then **Start tagging**. Each photograph
+gets a caption, a scene description, any text in the image, and keywords —
+written back into Photos if you leave that box ticked, so they become
+searchable. Watch the pipeline: photographs move through it, and the panel
+shows the tokens reused on every one after the first.
+
+**Voice to text** — `/console/apps/voice2text`
+Record, and it transcribes locally with Whisper (ffmpeg decodes the audio).
+Long recordings are transcribed in pieces as you speak and then re-done whole
+for the authoritative text.
+
+**Read the text (OCR)** — `/console/apps/ocr`
+Drop in a photograph of a page, receipt or sign; get clean text back.
+
+**Whiteboard to diagram** — `/console/apps/whiteboard`
+Photograph a hand-drawn diagram; get Mermaid source you can paste into a doc.
+
+## Use it as a proxy
 Point **any** OpenAI-compatible client at `http://127.0.0.1:8767/v1` (any api
 key value; it's ignored). Send a request, then a **follow-up that extends the
-same conversation** — the shared prefix is served from cache; you'll see a
-`warm(...)` line in the proxy output and a much faster first token.
-
-**Watch it work:** open `http://127.0.0.1:8767/console` — tokens skipped, time
-saved, warm vs cold latency.
+same conversation** — the second one is where the cache pays, because it
+contains the first as its prefix. The console's request feed shows, per
+request, whether it hit and how many prompt tokens it skipped.
 
 ## What to report
 - First-token latency: cold request vs a follow-up in the same conversation.
