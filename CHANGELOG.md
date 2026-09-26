@@ -2,11 +2,57 @@
 
 What changed in each published wheel, and whether you need to re-download.
 
-The wheel keeps the same filename every release, so check `EXPIRY_EPOCH.txt`
-or `curl -s localhost:8767/health` to see which build you are running — the
-expiry date is one year after the build date.
+The wheel keeps the same filename every release, so to see which build you
+are running:
+
+    curl -s localhost:8767/health
+
+From 2026-09-26 this is the PRODUCTION build and its life is your licence
+key's, not the wheel's. `EXPIRY_EPOCH.txt` described the old time-limited
+tester builds and no longer applies; `curl -s localhost:8767/api/licence`
+tells you who a key is for and when it runs out.
 
 ---
+
+## 2026-09-26 — the console becomes the product, and the build needs a key
+
+**Re-download, and get a licence key.** This is the **production build**: the
+cache does nothing without one. The proxy still serves and the console still
+works without a key -- every prompt is processed cold -- but the speed-up is
+what the key buys. Previous wheels here were time-limited tester builds that
+needed no key; this one replaces that. Paste your key into the console's
+Licence panel.
+
+**The default model changed, and it is much smaller.**
+`mlx-community/Qwen3-VL-4B-Instruct-4bit` -- 2.9 GB, against 34 GB for the
+Granite model before it. It reads images as well as text, which is what the
+new apps need, and it runs on any modern Mac.
+
+**Install with the mac extras:**
+
+    pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+                ./UltraDim-0.3.7-cp312-cp312-macosx_11_0_arm64.whl
+
+The `[mac]` matters: it pulls **mlx-vlm**, without which a photograph reaches
+the model as a placeholder and the answer is invented rather than read. It
+also pulls PyObjC, which is what lets you grant faxl access to **chosen
+photographs** instead of your whole disk.
+
+**New: a console with apps that work.**
+
+- **Tag your camera roll** -- captions, scene descriptions, text in the
+  image and keywords, written back into Photos so they are searchable.
+  Photographs are chosen through macOS's own picker, so faxl reads only what
+  you select. Watch the pipeline: every photo after the first reuses the
+  cached instructions.
+- **Voice to text** -- recorded and transcribed on the machine with Whisper.
+  Needs `ffmpeg` (`brew install ffmpeg`); nothing else does.
+- **Read the text (OCR)** and **Whiteboard to diagram**.
+
+**Also in this build:** a restart always comes back up (a model that will not
+load is reported on the page rather than leaving you with no console); the
+store no longer refuses to write when a model has been swapped; and a stale
+weights index no longer reads as a missing model.
 
 ## 2026-09-15 — reads the shop's JSON licence keys
 

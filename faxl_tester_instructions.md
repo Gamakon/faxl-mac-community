@@ -1,8 +1,13 @@
-# faxl — Tester Instructions (time-limited build)
+# faxl — Tester Instructions
 
-Thanks for testing faxl. This is a **12-month tester build**: it needs **no
-licence and no key**, runs fully offline, and simply stops accelerating after
-its built-in expiry (the proxy keeps working, just without the speed-up).
+Thanks for testing faxl. This is the **production build**: it needs a
+**licence key**, which you paste into the console. It runs fully offline —
+the key is checked on your Mac, and nothing about your use is reported
+anywhere.
+
+Without a key the proxy still serves and the console still works; the cache
+is simply off, so every prompt is processed from cold. That is the difference
+the key buys, and it is worth seeing both ways round.
 
 faxl is a caching proxy for local LLMs on Apple silicon, and a console with
 working apps on top of it. When a prompt shares a prefix with one it has seen,
@@ -44,6 +49,25 @@ First run downloads the default model, `mlx-community/Qwen3-VL-4B-Instruct-4bit`
 — **2.9 GB**, and it runs on any modern Mac. It reads images as well as text,
 which is what the apps need. A different MLX model: pick one in the console,
 or `export FAXL_MODEL=<mlx-community/repo>` before starting.
+
+## Put your licence in
+
+Open **http://127.0.0.1:8767/console**, find the **Licence** panel, paste the
+key you were sent, and save. The page tells you who it is for and when it
+runs out.
+
+Nothing is sent anywhere: the key is a signed block of text, checked against
+a public key compiled into the wheel. faxl never phones home, with or without
+a key.
+
+You can check it took:
+
+```bash
+curl -s localhost:8767/api/licence | python3 -m json.tool
+```
+
+Before the key, `/metrics` shows every request processed from cold. After it,
+repeated prompts start hitting the cache — that difference is the product.
 
 ## Try the apps
 
@@ -176,5 +200,7 @@ start/stop/status/licence/metrics as typed tools.
 - The proxy serves on port **8767** (it was 8080 in builds before
   2026-09-15). `FAXL_PORT` overrides it.
 - Licence keys: this build reads both the JSON keys the shop mints today and
-  the older `customer|issued|expiry|action` format. The tester build needs no
-  key at all.
+  the older `customer|issued|expiry|action` format. Paste either into the
+  console's Licence panel, or save it to `~/.faxl-licence` (or point
+  `FAXL_LICENCE` at a file) and restart. Without a key the proxy serves
+  normally with the cache off.

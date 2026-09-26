@@ -91,10 +91,15 @@ traffic is the honest measure (the reference run cut paid prompt processing
 
 ## Licence
 
-The current release in this directory is a **time-limited tester build**: it
-needs NO licence key. It stops accelerating about 12 months after its build
-date (expiry as a unix epoch in `EXPIRY_EPOCH.txt`); the proxy itself keeps serving, every prompt
-processed cold. Named 1-year keys come from faxl.ai.
+The current release in this directory is the **production build**: the cache
+does nothing without a valid licence key. The proxy still serves and the
+console still works -- every prompt is simply processed cold -- so a machine
+with no key is usable, just not fast.
+
+Paste the key into the console's Licence panel, or save it to
+`~/.faxl-licence` (or point `FAXL_LICENCE` at a file) and restart. Named
+1-year keys come from faxl.ai. The key is verified on the machine against a
+public key compiled into the wheel; there is no licence server.
 
 With a licensed build, the cache does nothing without a valid key: save the
 key text to `~/.faxl-licence` (or point `FAXL_LICENCE` at it), restart the
