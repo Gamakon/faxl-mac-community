@@ -13,14 +13,18 @@ environment supports typed tools.
 
 ## Install (once per machine)
 
-Apple silicon Mac, Python 3.12 (the UltraDim wheel is cp312-exact; the faxl
-wheel is abi3 3.9+ — 3.12 satisfies both).
+Apple silicon Mac, Python 3.12 or newer (both wheels are `abi3`).
 
 ```sh
-pip install ./faxl-*.whl          # cache core + the whole engine
-pip install ./UltraDim-*.whl      # the index (note the capital U and D)
-pip install mlx mlx-lm
+pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+            ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
 ```
+
+Quote the first path: `[mac]` is a glob pattern, and unquoted zsh fails with
+`no matches found` and installs nothing. The extra pulls mlx, mlx-lm,
+**mlx-vlm** — without which a photograph reaches the model as a placeholder
+and the answer is invented rather than read — and PyObjC, which is what lets
+faxl read *chosen* photographs rather than your whole disk.
 
 Both Gamakon wheels are in THIS directory — neither is on PyPI. Installing
 the faxl wheel gives you two commands: `faxl-proxy` (the proxy) and
@@ -57,7 +61,7 @@ Tools:
 | tool | does |
 |---|---|
 | `faxl_status` | pid + `/health` (includes the licence block) |
-| `faxl_start` | start the proxy in the background; **requires `blobs`** (persistent store dir); model load can take minutes |
+| `faxl_start` | start the stack in the background via `faxl_start.sh`, so the backend in `config.json` decides whether that is mlx in-process or exo with faxl in front; `blobs` is optional (config supplies the store); model load can take minutes |
 | `faxl_stop` | SIGTERM the proxy; the store persists and a restart warm-starts |
 | `faxl_install_licence` | write a licence key to the key file (mode 600); restart to load |
 | `faxl_metrics` | cache metrics: hits, hit_rate, prefill_skipped/paid |

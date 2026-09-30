@@ -14,6 +14,27 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-09-30 — UltraDim 0.5.0, and it installs on Python 3.13
+
+**Re-download if you are on Python 3.13 or newer, or if the install failed
+with "not a supported wheel on this platform".** Otherwise there is no hurry:
+the faxl wheel is unchanged.
+
+The shipped index wheel is now `ultradim-0.5.0-cp312-abi3-…`. The one before
+it was tagged `cp312-cp312`, which declares CPython 3.12 only, so pip refused
+to install it on 3.13+ — a new install on a current Mac stopped at the second
+wheel. The engine was never the problem; the tag was.
+
+    pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+                ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
+
+Both wheels are now `abi3`, so any CPython from 3.12 up works and the
+instructions no longer pin `python3.12`. Verified on a clean 3.13 venv: both
+wheels install and faxl, ultradim and mlx-vlm all import.
+
+0.5.0 also drops a `numpy` dependency the previous wheel declared but never
+imported, so the install pulls less.
+
 ## 2026-09-26 — the console becomes the product, and the build needs a key
 
 **Re-download, and get a licence key.** This is the **production build**: the
@@ -31,7 +52,7 @@ new apps need, and it runs on any modern Mac.
 **Install with the mac extras:**
 
     pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
-                ./UltraDim-0.3.7-cp312-cp312-macosx_11_0_arm64.whl
+                ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
 
 The `[mac]` matters: it pulls **mlx-vlm**, without which a photograph reaches
 the model as a placeholder and the answer is invented rather than read. It

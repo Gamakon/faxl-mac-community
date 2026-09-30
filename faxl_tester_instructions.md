@@ -20,21 +20,22 @@ state. The console shows the tokens it did not have to process.
 
 ## What you need
 - A Mac with Apple silicon (M1–M4).
-- **Python 3.12** (`brew install python@3.12` if missing).
+- **Python 3.12 or newer** (`brew install python@3.12` if missing). Both
+  wheels are `abi3`, so any CPython from 3.12 up works.
 - **ffmpeg**, for voice-to-text only (`brew install ffmpeg`). Everything else
   works without it.
 - Disk: **3 GB** for the default model, plus room for the cache store. The
   store is capped at 60 GB by default (`FAXL_STORE_CAP_GB`); 8 GB is plenty
   for trying the apps.
 - The two wheels shipped with this file: `faxl-…-arm64.whl` and
-  `UltraDim-…-cp312-…-arm64.whl`.
+  `ultradim-…-abi3-…-arm64.whl`.
 
 ## Install & run (copy-paste)
 
 ```bash
-python3.12 -m venv faxl-env && source faxl-env/bin/activate
+python3 -m venv faxl-env && source faxl-env/bin/activate
 pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
-            ./UltraDim-0.3.7-cp312-cp312-macosx_11_0_arm64.whl
+            ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
 faxl-proxy
 ```
 

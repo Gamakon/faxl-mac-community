@@ -84,18 +84,18 @@ service definition.
 ## Release notes
 
 [CHANGELOG.md](CHANGELOG.md) — what changed in each wheel and whether you need
-to re-download. The filename does not change between releases; check
-`EXPIRY_EPOCH.txt` or `/health` to see which build you have.
+to re-download. The filename does not change between releases; check `/health`
+to see which build you have.
 
 ## Current release
 
-- `faxl-0.1.0-…-arm64.whl` — **time-limited tester build** (no licence key
-  needed; stops accelerating ~12 months after build; the proxy itself keeps
-  working). Expiry (unix epoch) in `EXPIRY_EPOCH.txt`.
-- `UltraDim-0.3.7-…-cp312-….whl` — the index wheel (Python 3.12).
+- `faxl-0.1.0-…-arm64.whl` — the **production build**. A licence key from
+  faxl.ai turns the cache on; the key's own expiry is the only clock. Without
+  a key the proxy still proxies and simply stops accelerating — nothing
+  breaks, every request just runs cold.
+- `ultradim-0.5.0-…-abi3-….whl` — the index wheel.
 
-Licensed builds (named 1-year keys from faxl.ai) replace the tester build at
-launch; monthly wheel refreshes carry a 14-month validity cap.
+Both wheels are `abi3`: any CPython from 3.12 up.
 
 ## Licence
 
