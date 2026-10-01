@@ -14,6 +14,56 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-01 — tool calls were returned malformed, and each turn now settles warm
+
+**Re-download if you use faxl with an agent or any tool-calling client** — Claude
+Code, mcode, or anything that sends `tools` and reads `tool_calls` back. On
+Granite models those calls came back in a shape a correct client cannot parse,
+and the failure did not look like ours. If you only send plain chat prompts,
+nothing here affects you and there is no hurry. The index wheel is unchanged.
+
+**Tool-call arguments were double-encoded.** Granite emits `arguments` inside its
+`<tool_call>` markup as an object most of the time, but sometimes as a JSON
+string. faxl re-encoded whatever it found, so the string case came back as a JSON
+string wrapping a JSON string: `json.loads(arguments)` returned a `str` where the
+OpenAI contract promises a dict.
+
+What that cost is worth spelling out, because the symptom pointed somewhere else
+entirely. A correct client stored the malformed call and replayed it as
+conversation history on the next turn, where the unparseable arguments corrupted
+turn state. In mcode it surfaced as *"Conversation history could not be safely
+updated. Please retry."* — a client-side history error, with nothing naming the
+response that caused it. It reproduced on a cache hit too, which ruled out the
+timing explanations. It was debugged as a client bug first.
+
+Fixed by decoding before re-encoding, which is what the Nemotron branch had
+always done; Granite's was the only path missing it. Kimi and Ling were never
+affected. A non-JSON string is now preserved as `{"_raw": ...}` rather than
+discarded. Verified end to end through real `mcode exec` sessions: one tool call,
+two chained, and a three-step chain, all with multi-turn history replay — 3/3,
+no errors, confirmed by the team that reported it.
+
+**Each answer is now checkpointed as it is delivered.** "Turn settle": the state
+for the reply you just received is stored while you read it, so the next turn in
+a conversation starts warm instead of paying for the assistant message it just
+saw. Multi-turn chat and agent loops resume deeper, sooner. `FAXL_SETTLE=0` turns
+it off.
+
+**Vision ships, and it needs the `[mac]` extra.** This was true before and the
+docs said otherwise; see the README. The loader is chosen by the model's own
+`config.json`, so a vision model reads images rather than answering from a
+placeholder — but only with `mlx-vlm` installed, which `[mac]` pulls. Install
+without it and a photograph reaches the model as a placeholder and the answer is
+invented. faxl now refuses to start on a vision model rather than do that
+quietly.
+
+**exo integration also ships**, and is inert unless you install and run exo
+yourself. With no cluster, the console's exo page simply reports that exo is not
+answering.
+
+No expiry is compiled into this wheel: your licence key's own term is the only
+clock, and when a key lapses the proxy keeps serving with the cache off.
+
 ## 2026-09-30 — UltraDim 0.5.0, and it installs on Python 3.13
 
 **Re-download if you are on Python 3.13 or newer, or if the install failed

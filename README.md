@@ -59,13 +59,25 @@ key compiled into the wheel.
 
 ### Not in this build
 
-Vision and image caching, the model register page, and the console's power
-controls are on the development line and are not in the published wheel.
+The model register page and the console's power controls are on the development
+line and are not in the published wheel.
+
+**Vision ships.** The loader is chosen by the model's own `config.json`, not by a
+flag, so a vision model such as the shipped `Qwen3-VL` reads images rather than
+answering from a placeholder. It needs `mlx-vlm` installed — see Install below;
+without it the proxy refuses to start on a vision model rather than quietly
+inventing captions.
+
+**exo** integration ships too, and is inert unless you install and run exo
+yourself. With no cluster the console's exo page simply reports exo is not
+answering.
 
 ## Install
 
 See [faxl_tester_instructions.md](faxl_tester_instructions.md). Short version:
-Python 3.12, `pip install` the two wheels + `mlx mlx-lm`, run `faxl-proxy`.
+Python 3.12, `pip install` the two wheels with the **`[mac]`** extra — which
+pulls `mlx-vlm`, so images are read rather than invented — then run
+`faxl-proxy`.
 
 **AI agents:** read [AGENTS.md](AGENTS.md) — full operating instructions,
 plus an MCP server (`faxl-mcp`, installed with the wheel; registered by the
