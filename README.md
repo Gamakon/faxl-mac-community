@@ -72,6 +72,43 @@ plus an MCP server (`faxl-mcp`, installed with the wheel; registered by the
 included [.mcp.json](.mcp.json)) exposing start/stop/status/licence/metrics
 as typed tools.
 
+## Quick reference
+
+Start it:
+
+```sh
+faxl-proxy            # or: python -m faxl.engine.faxl_proxy
+```
+
+Backend and model come from `~/.faxl/config.json` (pick a model in the
+console the first time), the licence key from `~/.faxl`, and the cache store
+lives under the path shown on the console's cache panel.
+
+**Port:** `8767` — override with `FAXL_PORT`. Binds loopback only
+(`127.0.0.1`).
+
+**For clients (OpenAI-compatible):**
+
+| | |
+|---|---|
+| base URL | `http://127.0.0.1:8767/v1` |
+| endpoint | `POST /v1/chat/completions` |
+| model | whatever the proxy serves, e.g. `mlx-community/granite-4.0-h-small-8bit` |
+| api key | anything — it is ignored; the licence file is the auth |
+
+So for any OpenAI-style client: change the base URL, nothing else. Streaming
+and tools both supported.
+
+**Console (human view):** `http://faxl.localhost:8767/console` — or
+`http://127.0.0.1:8767/console`.
+
+**Other endpoints:** `/health`, `/metrics` (JSON counters), `/v1/models`.
+
+**Useful env switches:** `FAXL_MODEL` (override the model),
+`FAXL_NOCACHE=1` (cache off, for A/B), `FAXL_SETTLE=0` (turn settle off —
+on by default, it checkpoints each answer as it is delivered so the next
+turn starts warm), `FAXL_STORE_CAP_GB` (store size).
+
 ## Shared server
 
 Running one Mac (e.g. a lab Mac Studio) as a long-lived proxy for several
