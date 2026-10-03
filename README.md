@@ -38,6 +38,23 @@ so some of these models run through faxl that otherwise would not run at all.
 cache-off and reports byte-identity. `FAXL_NOCACHE=1` gives you the same proxy
 with the cache off for your own A/B.
 
+**A speculator that learns from your own sessions.** Separately from the cache,
+faxl keeps a table of what usually follows what, built from every generation it
+has served. With it, the model can be handed several likely next tokens at once
+and confirm or reject them in a single pass instead of computing them one at a
+time. It is always learning -- the table fills whether or not you use it -- and
+it gets better the longer faxl has been running, because it has seen more of
+your work. Measured on this line: **1.3x to 2.2x** faster generation once the
+table has something to say.
+
+Using it is your choice, and the trade is worth stating plainly. The prefix
+cache above is lossless: same text, every time. The speculator is not quite --
+every token still comes from the model itself, so quality is unaffected, but
+where two continuations are near-equally likely it may settle on the other one,
+so a run is not guaranteed to reproduce an unaccelerated run word for word. If
+you are running evals, regression tests or anything that diffs output, leave it
+off. If you want the model to be faster, turn it on.
+
 **A web console** at `/console`: tokens skipped, time saved, warm vs cold
 latency, cache contents, a live request feed with per-request detail, and the
 verify check. Served by the proxy itself, no external assets, works offline.
