@@ -60,11 +60,13 @@ Tools:
 
 | tool | does |
 |---|---|
-| `faxl_status` | pid + `/health` (includes the licence block) |
+| `faxl_status` | pid + `/health` (includes the licence block), measured generation tok/s, and whether a HuggingFace token is set |
 | `faxl_start` | start the stack in the background via `faxl_start.sh`, so the backend in `config.json` decides whether that is mlx in-process or exo with faxl in front; `blobs` is optional (config supplies the store); model load can take minutes |
 | `faxl_stop` | SIGTERM the proxy; the store persists and a restart warm-starts |
 | `faxl_install_licence` | write a licence key to the key file (mode 600); restart to load |
 | `faxl_metrics` | cache metrics: hits, hit_rate, prefill_skipped/paid |
+| `faxl_models` | the models this machine holds and which is resident; `model=` switches to another. faxl serves one at a time, so a switch restarts the proxy on it. A model not on this machine is refused **with the list of what is** — faxl never downloads one to answer a request |
+| `faxl_hf_token` | whether a HuggingFace token is set, and set one. Reading never returns the token, only whether one is set and where it came from. Needs a restart to take effect |
 
 The server shells out to the same commands documented in this file — nothing
 it does is unavailable by hand.
