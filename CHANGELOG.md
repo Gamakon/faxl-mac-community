@@ -55,6 +55,12 @@ and written every tenth, plus on a clean stop. Before this it only ever reached
 disk on an explicit save nobody called, so a kill lost everything learned.
 Drafting from the table is still off -- see "In progress" in the README.
 
+**The MCP server knows about all of it.** `faxl_models` lists the models this
+machine holds and switches between them -- without it an agent could see only
+the model being served, so a stronger one sitting on disk was invisible.
+`faxl_hf_token` reports and sets the token. `faxl_status` now carries measured
+generation tok/s too.
+
 Also: `faxl_reset.sh` to put an install back to new for testing, and an exo
 section in the README that the last rewrite dropped.
 
