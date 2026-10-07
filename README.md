@@ -150,6 +150,48 @@ across a team, see the
 [shared server section](faxl_tester_instructions.md#running-it-as-a-shared-server-eg-a-lab-mac-studio):
 exposure, concurrency, storage caps and a launchd service.
 
+## exo clusters
+
+A model too large for one Mac can run across several, with exo doing the
+inference and faxl in front of it doing the caching. The shape is the same as
+on one machine: your client talks to faxl, faxl talks to exo.
+
+**exo is not included.** Install and run it yourself — faxl does not start it,
+and without a cluster the console's exo page simply reports that exo is not
+answering. Nothing else breaks.
+
+Point faxl at it:
+
+```sh
+ENG=$(python -c "import faxl.engine,os;print(os.path.dirname(faxl.engine.__file__))")
+bash "$ENG/faxl_exo_up.sh"            # or: faxl_exo_up.sh org/model-name
+```
+
+That records `exo` as the backend in `~/.faxl/config.json`, so the choice
+survives a restart, and hands over to the normal launcher. Switching back is
+the backend control in the console, or running `faxl-proxy` again.
+
+| | |
+|---|---|
+| exo endpoint | `http://127.0.0.1:52415` — `FAXL_EXO_ENDPOINT` |
+| prefill port | `52440` — `FAXL_PREFILL_PORT` |
+| cache store | `~/.faxl/exo-store` — `FAXL_EXO_STORE` |
+| console page | `/console/exo` — nodes, downloads, catalogue, logs |
+| stopping exo | `bash "$ENG/exo_stop.sh"` |
+
+The exo store is **separate from the local one**, deliberately: the two
+backends compute state differently, and a checkpoint from one must never be
+served to the other.
+
+With no model remembered for exo, faxl comes up on the small default rather
+than something only a large cluster can hold. Pick the big model from exo's
+catalogue in the console, where the fit check can size it against the
+cluster's memory before you commit to a download.
+
+**Lightly tested.** This path works and is shipped, but it has had far less
+use than the single-Mac one. If you are running a cluster we would like to
+hear from you — andrew@gamakon.ai.
+
 ## Troubleshooting
 
 | symptom | cause | fix |
@@ -160,13 +202,16 @@ exposure, concurrency, storage caps and a launchd service.
 | `FATAL: the 'faxl' wheel is not installed` | wrong Python | install the wheels into the Python that runs the proxy |
 | vision model refuses to start | mlx-vlm missing | reinstall with `[mac]` |
 | boot sits at model load | large model paging in | wait; first load of a 30 GB+ model takes minutes |
+| console's exo page says exo is not answering | exo not running, or on another port | start exo; check `FAXL_EXO_ENDPOINT` |
+| exo model download never starts | registering fetches the card, not the weights | use the download control on `/console/exo` |
 
 ## In progress
 
 - **Speculative decoding.** faxl is already building a table of what usually
   follows what from your sessions. Drafting from it is in testing and off in
   this build.
-- **exo clusters.** Wired in, lightly tested. Testers wanted.
+- **exo clusters.** Shipped and working, lightly tested — see
+  [exo clusters](#exo-clusters) above. Testers wanted.
 - **NVIDIA.** The cache engine is shared; the NVIDIA build is separate.
 
 ## Releases and licence
