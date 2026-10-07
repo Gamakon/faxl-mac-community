@@ -14,6 +14,52 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-07 — a big model on a 64 GB Mac, model switching, and the token in the UI
+
+**Re-download if you run Qwen3.8-Flash-Next, switch models from a client, or
+have ever hit a gated HuggingFace repo.** If you run one model on one Mac and
+have never seen a download refused, the cache works exactly as it did and there
+is no hurry. The index wheel is unchanged.
+
+**Qwen3.8-Flash-Next now fits a 64 GB Mac, and its cache works at all.** Two
+separate faults. The model carries a 320-million-row lookup table -- 33.6 GiB,
+45% of the checkpoint -- that was wired into RAM in full though roughly sixteen
+rows are read per token. faxl now memory-maps it automatically: peak **76.2 ->
+46 GiB**, load **27.4s -> ~10s**, output byte-identical. Separately, one
+non-array scalar in its 48-layer cache made every checkpoint unserialisable, so
+the prefix cache was silently inert on this model -- every long prompt re-read
+in full, nothing in the console saying so. Both fixed.
+
+**A client can switch the served model.** Name a different local model in the
+`model` field and faxl switches to it and answers. Measured 6s for a 46 GiB
+model down to a 19 GB one. A model this machine does not hold is a `400` with
+`model_not_found` and the list of what it does have -- never a silent answer
+from the wrong model, and never a download started behind your back.
+
+**The HuggingFace token is in the console.** There was no field for it: a gated
+repo failed with a traceback, and the only hint was a sentence telling you to go
+and run `hf auth login` in a shell. There is now a pill beside the licence, and
+a field in the cache & store drawer. It is stored `0600` in a file of its own,
+never in `config.json`, and never sent back to the page -- the console shows
+only whether a token is set and where it came from. An existing `HF_TOKEN` or
+`hf auth login` still wins, and the UI says so rather than quietly losing to it.
+
+**Generation speed, measured and shown.** Per request and per model, timed
+first token to last -- the same span a client sees timing its own stream. The
+figure faxl had been computing internally was wall-clock minus prefill, which
+swept cache work into "decode" and understated generation speed on every warm
+request: the warmer the hit, the worse the lie.
+
+**The speculator's table now reaches disk.** It is harvested from every answer
+and written every tenth, plus on a clean stop. Before this it only ever reached
+disk on an explicit save nobody called, so a kill lost everything learned.
+Drafting from the table is still off -- see "In progress" in the README.
+
+Also: `faxl_reset.sh` to put an install back to new for testing, and an exo
+section in the README that the last rewrite dropped.
+
+Built from faxl-mac-dev `da221b4`, faxl-core `c865788`.
+
 ## 2026-10-01 — tool calls were returned malformed, and each turn now settles warm
 
 **Re-download if you use faxl with an agent or any tool-calling client** — Claude
