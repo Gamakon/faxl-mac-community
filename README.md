@@ -7,7 +7,8 @@ faxl loads that state and the model reads only the new part.
 
 ![The faxl console on a Mac](assets/faxl-console-mac.png)
 
-*One hour of agentic coding on a 128 GB Mac Studio, Qwen3.8-Flash-Next: 838k of
+*One hour of agentic coding on a 128 GB MacBook Pro (M3 Max),
+Qwen3.8-Flash-Next: 838k of
 923k prompt tokens served from cache (90.9%). Prompts of 24–28k tokens resumed
 with a few hundred tokens left to process.*
 
@@ -55,7 +56,7 @@ The consequences:
 
 ## Supported models
 
-Measured on a 128 GB Mac Studio. tok/s is generation speed,
+Measured on a 128 GB MacBook Pro (M3 Max). tok/s is generation speed,
 first token to last.
 
 | model | type | memory | tok/s |
