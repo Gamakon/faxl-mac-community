@@ -14,6 +14,23 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (sixth build) — talk to the chat
+
+**Re-download: if you want to talk to the chat instead of typing.** Serving,
+the cache and Voice to text are unchanged.
+
+**A Speak button under the chat box**, next to Send and Attach picture. Press
+it and talk: at each pause your words are added to the box. Press it again to
+stop. Nothing is sent to the model until you press Send, so you can fix a
+misheard word first. It uses the speech model Voice to text already has on
+your Mac (set one up there first) and the same names-and-terms list. The text
+is the speech model's own, not cleaned up, and nothing is saved.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (fifth build) — fixes a crash at Stop in Voice to text
 
 **Re-download: everyone who installed the fourth build (2026-10-14.4).** That
