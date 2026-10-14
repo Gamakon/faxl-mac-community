@@ -14,6 +14,16 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (tenth build) — Image-to-Text OCR removed
+
+**Re-download: optional.** The console no longer offers Image-to-Text OCR; it
+was not reliable enough. Nothing else changed.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (ninth build) — Tag your photos explains every problem and how to fix it
 
 **Re-download: if you tag photos.** Nothing else changed.
