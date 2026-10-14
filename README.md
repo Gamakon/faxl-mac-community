@@ -107,6 +107,10 @@ a model unasked.
 - model picker and switcher, licence panel, chat window to try the model
 - `/console/verify`: runs the same prompt with and without the cache and
   compares the output
+- **connect**: download a complete config file for MiniMax Code or Hermes
+  Agent, with every model on this Mac and its real context window
+- a banner when two clients ask for different models at the same time, saying
+  which client, which models, and what to change
 
 Each page is also available as plain text or JSON for terminals and agents.
 
@@ -122,12 +126,34 @@ Each page is also available as plain text or JSON for terminals and agents.
 | `FAXL_SETTLE` | `1` | `0` = don't checkpoint answers on delivery |
 | `FAXL_MAX_TOKENS_DEFAULT` | unlimited | cap on reply length when the client sends none |
 | `FAXL_ENABLE_THINKING` | model default | turn reasoning blocks on/off for models that have them |
+| `FAXL_STRICT_REQUESTS` | `0` | `1` = refuse request fields faxl does not honour (`stop`, `response_format`, …) instead of serving and logging them |
 
 Endpoints: `/v1/chat/completions` (streaming and tools), `/v1/models`,
 `/health`, `/metrics`, `/console`.
 
 Don't change `FAXL_SEEDS`, `FAXL_CKPT_EVERY` or `FAXL_CKPT_RATIO`: they define
 the cache namespace, and changing them makes existing entries unusable.
+
+## Agent clients: Hermes, MiniMax Code and others
+
+Any OpenAI-compatible client works: point it at `http://127.0.0.1:8767/v1`
+with any API key. Tested unmodified with Hermes Agent and MiniMax Code.
+
+- **Easiest:** open the console's **connect** panel and download the config
+  file for your client. It lists every model on this Mac with its real
+  context window. MiniMax Code cannot discover context windows from a server,
+  so without this file it guesses.
+- **Model names:** `/v1/models` lists models by their short name
+  (`Qwen3.6-35B-A3B-4bit`); the full repo id (`mlx-community/...`) still works
+  in requests. Use the short name when a client builds `provider/model`
+  strings — MiniMax Code ignores an agent whose model has a second slash.
+- **Thinking:** reasoning comes back separately from the reply
+  (`reasoning_content`), and a client's thinking switch is honoured.
+- **Agents on a different model:** faxl runs one model at a time. If an agent
+  (an advisor, say) asks for a different model while your main session is
+  using the loaded one, faxl answers with a message saying so instead of
+  swapping models under you. Leave the agent's model unset so it uses the
+  session's model, or switch faxl to the other model first.
 
 ## For agents: MCP server
 
@@ -205,6 +231,7 @@ hear from you — andrew@gamakon.ai.
 | boot sits at model load | large model paging in | wait; first load of a 30 GB+ model takes minutes |
 | console's exo page says exo is not answering | exo not running, or on another port | start exo; check `FAXL_EXO_ENDPOINT` |
 | exo model download never starts | registering fetches the card, not the weights | use the download control on `/console/exo` |
+| "Sorry - … faxl can only run one model at a time" | an agent or second client asked for a different model while the loaded one is in use | give the agent the session's model (or none), or switch faxl to the other model first |
 
 ## In progress
 

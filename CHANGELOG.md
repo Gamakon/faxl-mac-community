@@ -14,6 +14,61 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 — the cache works again on a full store, agent clients work unmodified, voice fixed
+
+**Re-download: everyone.** The most important fix is to the cache itself: on a
+store that had ever evicted old entries, faxl stopped saving new ones, so every
+request ran cold with nothing in the console saying why. If your hit rate has
+been at or near 0%, this is why. The index wheel is unchanged.
+
+**The cache saves again on a full store.** Once eviction had removed entries,
+faxl numbered new entries from its own list instead of the index's, and the
+index refused every write. faxl now takes the number from the index. Measured
+on a real store: a 4-step agent task went from 129 s, all cold, to 37 s with
+every step after the first resuming from cache.
+
+**Short conversations on Qwen3 models hit the cache.** Qwen3's chat template
+writes the newest reply differently from how it writes the same reply once it
+is history, so the checkpoint faxl saved after each answer never matched the
+next request. Long prompts hid this; short turns got no cache at all. faxl now
+saves the conversation the way the next request will see it.
+
+**Hermes Agent and MiniMax Code work out of the box.** Tested unmodified:
+- `/v1/models` gives each model's real context window (Hermes was guessing
+  half of it) and lists models by short name, which MiniMax Code needs for
+  agents.
+- Reasoning comes back separately instead of inside the reply, and MiniMax
+  Code's thinking-off switch is honoured.
+- The `developer` role, `max_completion_tokens`, `reasoning_effort` and typed
+  tool arguments are handled.
+- Requests using fields faxl does not honour (`stop`, `response_format`, …)
+  are served and logged once rather than refused; `FAXL_STRICT_REQUESTS=1`
+  refuses them.
+- The console's new **connect** panel downloads a complete config file for
+  MiniMax Code or Hermes.
+
+**Two clients wanting different models at once get a clear message.** An
+agent (an advisor, say) asking for another model while the session uses the
+loaded one used to make faxl swap back and forth until requests failed with
+"Connection error". faxl now keeps the loaded model and answers with a
+message naming the client, the models and what to change, also shown in the
+console.
+
+**Voice to text.** Your names-and-terms list now reaches the correction step
+too (it was undoing "Gamakon"); corrections no longer fail with "the model
+returned nothing"; corrections now come from cache; a recording in progress is
+never deleted by a restart; a failed backup stops retrying after 10 tries; and
+every voice error is written to the proxy log.
+
+**Also fixed.** faxl keeps running if whatever started it is closed; a slow
+disk no longer refuses a request after it was recorded; pictures a model
+cannot read are refused by name instead of answered from a placeholder; server
+faults are a named error instead of a bare 500; a client that hangs up stops
+its generation; one id per streamed reply; `FAXL_HOME` moves every store with
+it.
+
+---
+
 ## 2026-10-07 — a big model on a 64 GB Mac, model switching, and the token in the UI
 
 **Re-download if you run Qwen3.8-Flash-Next, switch models from a client, or
