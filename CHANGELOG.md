@@ -14,6 +14,30 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (fourth build) — whole-recording transcripts no longer loop at the end
+
+**Re-download: if you use Voice to text.** Serving and the cache are unchanged.
+
+**The whole-recording transcript no longer ends in a loop.** A long dictation
+could end with one sentence repeated dozens of times ("Thank you. Thank you.
+Thank you…", or the last thing said) and sometimes an invented sentence
+before it. That was the speech model hallucinating on the last moment of the
+recording. faxl now uses the speech model's silence guard on recordings
+longer than 30 seconds, drops anything timestamped after the audio ends, and
+if a sentence still repeats it transcribes the recording again in a way that
+cannot loop. The live text was never affected.
+
+**Copy transcript.** The copy button says what it copies: the text of the
+tab you are looking at.
+
+**Voice to text shows as "voice2text" in the request log**, and the photo
+tagger as "phototag", instead of "other".
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (third build) — Voice to text rebuilt; scroll bars you can see
 
 **Re-download: if you use Voice to text, or you find the console's panels
