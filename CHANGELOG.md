@@ -14,6 +14,22 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (ninth build) — Tag your photos explains every problem and how to fix it
+
+**Re-download: if you tag photos.** Nothing else changed.
+
+When a photo is not tagged, the page now says what happened in plain words
+and gives you the button that fixes it, instead of showing a raw error:
+**Tag it again**, **Choose another folder**, **Turn write back off and tag
+again**, or the choices for getting a model that reads pictures. A run that
+ended a while ago is shown as your last run, with the time, and **Dismiss**
+clears it. **Tag it again** retries the same photos.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (eighth build) — Tag your photos: any folder, the console's layout
 
 **Re-download: if you tag photos.** Serving, the cache, chat and Voice to text
