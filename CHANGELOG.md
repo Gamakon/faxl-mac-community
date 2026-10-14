@@ -14,6 +14,32 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (third build) — Voice to text rebuilt; scroll bars you can see
+
+**Re-download: if you use Voice to text, or you find the console's panels
+hard to scroll.** Serving and the cache are unchanged.
+
+**Voice to text uses the console's layout.** The page now has the console's
+three columns: the cache figures on the left, your dictation in the centre,
+the session log on the right.
+- The mic, timer, Copy, Stop and New session stay at the top. Only the text
+  scrolls.
+- The newest words stay in view as you speak. Scroll up to read and the page
+  leaves you there, with a "Jump to latest" button to get back.
+- The live text and the whole-recording text are two tabs. When you press
+  Stop, the whole recording opens in its tab as soon as it is ready; Copy
+  copies whichever tab you are looking at.
+- The per-piece log, cache hits and repair times are on the right, newest
+  first, instead of under your text.
+
+**Scroll bars are always visible** on every panel of the console. macOS hid
+them until you scrolled, so a panel with more below gave no sign of it.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (second build) — the console matches faxl.ai
 
 **Re-download: optional.** Nothing about serving or the cache changed. If you
