@@ -14,6 +14,35 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (eighth build) — Tag your photos: any folder, the console's layout
+
+**Re-download: if you tag photos.** Serving, the cache, chat and Voice to text
+are unchanged.
+
+**Tag your photos** (was "Tag your camera roll") now uses the console's
+layout and follows your light/dark choice:
+- **Any folder of photos**, on a Mac or Linux: a camera card, a download, a
+  folder of pictures. Choose it, see what is in it, start. JPEGs get the
+  caption and keywords written inside the photo (the picture itself is never
+  changed); HEIC, PNG, TIFF and raw files get a standard .xmp file beside
+  them, which Lightroom, Capture One, digiKam and darktable read. A raw file
+  with a JPEG of the same shot is tagged from the JPEG. Every result is also
+  saved to catalogue.csv in the folder.
+- **Apple Photos** is offered only on a Mac with a Photos library.
+- If the model you are running can't read pictures, the page offers a way
+  forward instead of a dead end: switch to one on your machine that can
+  (it asks first), download one that fits (named, with its size), and add
+  your Hugging Face token if the download needs it.
+- A run that fails now says so, with the reason, instead of "1 / 1 completed".
+- Fixed: tagging failed with "faxl is switching to Qwen3-VL-4B" when a
+  different picture-reading model was already running; and with a thinking
+  model every photo came back empty.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (seventh build) — the request log names faxl's own pages
 
 **Re-download: optional.** Serving, the cache and Voice to text are unchanged.
