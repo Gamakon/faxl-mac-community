@@ -14,6 +14,22 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (fifth build) — fixes a crash at Stop in Voice to text
+
+**Re-download: everyone who installed the fourth build (2026-10-14.4).** That
+build could stop faxl entirely when you pressed Stop on a Voice to text
+recording longer than 30 seconds: the page then said "The proxy is not
+answering". The setting it used to stop transcripts looping needs a library
+(numba, for word timings) whose threads crash inside faxl. This build stops
+the loops without it: when the speech model's first pass falls back to
+guessing or repeats itself, the recording is transcribed again in a way that
+cannot loop. Tested inside a running faxl on a 348-second recording.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (fourth build) — whole-recording transcripts no longer loop at the end
 
 **Re-download: if you use Voice to text.** Serving and the cache are unchanged.
