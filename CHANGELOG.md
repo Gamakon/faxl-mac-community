@@ -14,6 +14,20 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (seventh build) — the request log names faxl's own pages
+
+**Re-download: optional.** Serving, the cache and Voice to text are unchanged.
+
+The console's request log now says which of faxl's own pages made a request:
+**chat** for the chat box, **verify** for the cache check, and **ocr**,
+**cameraroll** or **whiteboard** for the picture apps. They showed as "other"
+before, because a browser page cannot set its own User-Agent.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (sixth build) — talk to the chat
 
 **Re-download: if you want to talk to the chat instead of typing.** Serving,
