@@ -26,6 +26,17 @@ faxl-proxy
 `[mac]` installs mlx, mlx-lm and mlx-vlm. Without mlx-vlm, vision models refuse
 to start.
 
+**Upgrading** to a newer release: the wheel keeps the same filename and
+version, so pip thinks it is already installed. Add `--force-reinstall`:
+
+```bash
+pip install --force-reinstall './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+            ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
+```
+
+Then restart `faxl-proxy`. `curl -s localhost:8767/health` shows which build
+is running.
+
 1. Open `http://127.0.0.1:8767/console`.
 2. Paste your licence key from [faxl.ai](https://faxl.ai) into the Licence panel,
    then restart. The key is read once at startup. Without a key the proxy still
