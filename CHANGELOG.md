@@ -14,6 +14,18 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-14 (second build) — the console matches faxl.ai
+
+**Re-download: optional.** Nothing about serving or the cache changed. If you
+installed this morning's build, the only visible difference is the console's
+styling, which now matches faxl.ai. If you skipped this morning's build,
+re-download now: this one includes all of its fixes.
+
+To upgrade: `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 — the cache works again on a full store, agent clients work unmodified, voice fixed
 
 **Re-download: everyone.** The most important fix is to the cache itself: on a
