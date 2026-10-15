@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# faxl for Mac -- install, or upgrade what is already there.
+# faxl for Mac -- upgrade an existing install, or install fresh. One script for both.
 #
 #   git clone https://github.com/Gamakon/faxl-mac-community.git
 #   cd faxl-mac-community
-#   ./install.sh
+#   ./upgrade_install.sh
 #
 # Run it again any time to upgrade: it pulls the latest release first.
 #
@@ -80,7 +80,7 @@ if [ -d "$HERE/.git" ] && command -v git >/dev/null 2>&1; then
 else
   say "   not a git clone: using the wheels next to this script"
 fi
-[ -f "$HERE/$FAXL_WHL" ] || fail "$FAXL_WHL is not next to this script. Clone the repository and run ./install.sh from inside it."
+[ -f "$HERE/$FAXL_WHL" ] || fail "$FAXL_WHL is not next to this script. Clone the repository and run ./upgrade_install.sh from inside it."
 [ -f "$HERE/$UD_WHL" ] || fail "$UD_WHL is not next to this script."
 
 # ---- is faxl running? ----------------------------------------------------
@@ -157,7 +157,7 @@ else
       BASE_PY="$(find_python || true)"
       [ "$DRY" = 1 ] && [ -z "$BASE_PY" ] && BASE_PY="/opt/homebrew/bin/python3.12"
     fi
-    [ -n "$BASE_PY" ] || fail "faxl needs Python 3.12 or newer and none is installed. Install Homebrew (https://brew.sh) and run ./install.sh again, or install Python from https://www.python.org/downloads/macos/"
+    [ -n "$BASE_PY" ] || fail "faxl needs Python 3.12 or newer and none is installed. Install Homebrew (https://brew.sh) and run ./upgrade_install.sh again, or install Python from https://www.python.org/downloads/macos/"
     say "   using $BASE_PY ($("$BASE_PY" -c 'import sys; print(sys.version.split()[0])'))"
     run "$BASE_PY" -m venv "$ENV_DIR"
   fi
@@ -169,7 +169,7 @@ step "Installing faxl"
 # and version, so without --force-reinstall pip would keep the old one. The
 # dependencies are not forced (that would download mlx again for nothing):
 # the second command only adds what is missing, such as mlx-whisper.
-PIPFAIL="pip could not finish. The first install downloads about 1 GB (mlx and friends): check the internet connection, then run ./install.sh again."
+PIPFAIL="pip could not finish. The first install downloads about 1 GB (mlx and friends): check the internet connection, then run ./upgrade_install.sh again."
 run "$PY" -m pip install --quiet --upgrade pip || say "   (pip itself could not be upgraded; carrying on)"
 run "$PY" -m pip install --quiet --force-reinstall --no-deps "$HERE/$FAXL_WHL" "$HERE/$UD_WHL" || fail "$PIPFAIL"
 run "$PY" -m pip install --quiet "${HERE}/${FAXL_WHL}[mac]" "$HERE/$UD_WHL" || fail "$PIPFAIL"
@@ -195,7 +195,7 @@ fi
 if [ "$OTHER_RUNNING" = 1 ] && [ "$START" = 1 ]; then
   step "Done (not started)"
   say "   Another faxl is already running. Only one can run at a time (two copies"
-  say "   of a model can crash the Mac): stop it first, then run ./install.sh again."
+  say "   of a model can crash the Mac): stop it first, then run ./upgrade_install.sh again."
   exit 0
 fi
 if [ "$START" = 0 ]; then
@@ -221,7 +221,7 @@ stop_pid() {
       say "   pid $pid has not exited after ${grace}s: forcing it"
       kill -9 "$pid" 2>/dev/null || true
     fi
-    [ "$waited" -ge $((grace + 30)) ] && fail "pid $pid would not stop. Restart the Mac, then run ./install.sh again."
+    [ "$waited" -ge $((grace + 30)) ] && fail "pid $pid would not stop. Restart the Mac, then run ./upgrade_install.sh again."
   done
   say "   stopped after ${waited}s"
 }
@@ -248,7 +248,7 @@ if [ -z "$LAUNCHD_LABEL" ]; then
     fi
   fi
   if [ "$DRY" = 0 ] && [ -n "$(port_pid)" ]; then
-    fail "port $PORT is still in use by pid $(port_pid) after stopping it. Restart the Mac, then run ./install.sh again."
+    fail "port $PORT is still in use by pid $(port_pid) after stopping it. Restart the Mac, then run ./upgrade_install.sh again."
   fi
   [ -z "$(proxy_pids)$(port_pid)" ] && say "   nothing of the old faxl is left; port $PORT is free"
 fi

@@ -19,13 +19,13 @@ The quick way, which also upgrades an existing install:
 ```bash
 git clone https://github.com/Gamakon/faxl-mac-community.git
 cd faxl-mac-community
-./install.sh
+./upgrade_install.sh
 ```
 
-`install.sh` gets the latest release, installs everything (including ffmpeg
+`upgrade_install.sh` gets the latest release, installs everything (including ffmpeg
 through Homebrew), and starts faxl. If faxl is already running, it upgrades
 that install and restarts it, waiting for the old one to exit first. Your
-licence, cache, models and settings are kept. `./install.sh --dry-run` shows
+licence, cache, models and settings are kept. `./upgrade_install.sh --dry-run` shows
 what it would do without changing anything.
 
 ### By hand
@@ -79,7 +79,7 @@ Any other OpenAI-compatible client works the same way.
 ## Upgrade
 
 ```bash
-cd faxl-mac-community && ./install.sh
+cd faxl-mac-community && ./upgrade_install.sh
 ```
 
 Or by hand:
