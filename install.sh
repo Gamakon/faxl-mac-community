@@ -54,11 +54,29 @@ step "Checking this Mac"
 [ "$(uname -s)" = "Darwin" ] || fail "this installer is for macOS."
 [ "$(uname -m)" = "arm64" ] || fail "faxl for Mac needs Apple silicon (M1 or later)."
 say "   macOS on Apple silicon: ok"
+command -v curl >/dev/null 2>&1 || fail "curl is missing (it ships with macOS). Reinstall Apple's command line tools: xcode-select --install"
+if ! command -v git >/dev/null 2>&1; then
+  say "   git is not installed. It comes with Apple's command line tools:"
+  say "     xcode-select --install"
+  say "   (only needed to fetch updates; carrying on with the files already here)"
+fi
+HAVE_BREW=0; command -v brew >/dev/null 2>&1 && HAVE_BREW=1
+# A Python of 3.12 or newer, for a new environment. Installed with Homebrew
+# when there is none and Homebrew is here; otherwise said, with where to get it.
+find_python() {
+  for c in python3.13 python3.12 /opt/homebrew/bin/python3.13 /opt/homebrew/bin/python3.12 python3; do
+    if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' 2>/dev/null; then
+      command -v "$c"; return 0
+    fi
+  done
+  return 1
+}
 
 # ---- the latest release --------------------------------------------------
 step "Getting the latest release"
 if [ -d "$HERE/.git" ] && command -v git >/dev/null 2>&1; then
-  run git -C "$HERE" pull --ff-only || fail "git pull did not complete. Resolve it (git status), then run ./install.sh again."
+  run git -C "$HERE" pull --ff-only \
+    || say "   could not fetch updates (no internet, or local changes) -- installing the release already here"
 else
   say "   not a git clone: using the wheels next to this script"
 fi
@@ -110,17 +128,22 @@ else
   ENV_DIR="${ENV_DIR:-$HERE/faxl-env}"
   PY="$ENV_DIR/bin/python"
   [ "$OTHER_RUNNING" = 1 ] || [ -n "$RUNNING_PID" ] || say "   faxl is not running"
-  if [ -x "$PY" ]; then
+  if [ -e "$ENV_DIR" ] && ! { [ -x "$PY" ] && "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' 2>/dev/null; }; then
+    say "   $ENV_DIR is there but broken or on Python older than 3.12: rebuilding it"
+    run rm -rf "$ENV_DIR"
+  fi
+  if [ -x "$PY" ] && [ -e "$ENV_DIR" ]; then
     say "   upgrading $ENV_DIR"
   else
     say "   installing into $ENV_DIR"
-    BASE_PY=""
-    for c in python3.13 python3.12 python3; do
-      if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' 2>/dev/null; then
-        BASE_PY="$(command -v "$c")"; break
-      fi
-    done
-    [ -n "$BASE_PY" ] || fail "faxl needs Python 3.12 or newer. Install it (for example: brew install python@3.12), then run ./install.sh again."
+    BASE_PY="$(find_python || true)"
+    if [ -z "$BASE_PY" ] && [ "$HAVE_BREW" = 1 ]; then
+      say "   no Python 3.12 or newer here: installing it with Homebrew"
+      run brew install python@3.12
+      BASE_PY="$(find_python || true)"
+      [ "$DRY" = 1 ] && [ -z "$BASE_PY" ] && BASE_PY="/opt/homebrew/bin/python3.12"
+    fi
+    [ -n "$BASE_PY" ] || fail "faxl needs Python 3.12 or newer and none is installed. Install Homebrew (https://brew.sh) and run ./install.sh again, or install Python from https://www.python.org/downloads/macos/"
     say "   using $BASE_PY ($("$BASE_PY" -c 'import sys; print(sys.version.split()[0])'))"
     run "$BASE_PY" -m venv "$ENV_DIR"
   fi
@@ -132,9 +155,10 @@ step "Installing faxl"
 # and version, so without --force-reinstall pip would keep the old one. The
 # dependencies are not forced (that would download mlx again for nothing):
 # the second command only adds what is missing, such as mlx-whisper.
-run "$PY" -m pip install --quiet --upgrade pip
-run "$PY" -m pip install --quiet --force-reinstall --no-deps "$HERE/$FAXL_WHL" "$HERE/$UD_WHL"
-run "$PY" -m pip install --quiet "${HERE}/${FAXL_WHL}[mac]" "$HERE/$UD_WHL"
+PIPFAIL="pip could not finish. The first install downloads about 1 GB (mlx and friends): check the internet connection, then run ./install.sh again."
+run "$PY" -m pip install --quiet --upgrade pip || say "   (pip itself could not be upgraded; carrying on)"
+run "$PY" -m pip install --quiet --force-reinstall --no-deps "$HERE/$FAXL_WHL" "$HERE/$UD_WHL" || fail "$PIPFAIL"
+run "$PY" -m pip install --quiet "${HERE}/${FAXL_WHL}[mac]" "$HERE/$UD_WHL" || fail "$PIPFAIL"
 if [ "$DRY" = 0 ]; then
   "$PY" -c 'import faxl, mlx_vlm, mlx_whisper, ultradim' 2>/dev/null \
     || fail "the install finished but faxl's pieces do not import in $PY. Run: $PY -c 'import faxl, mlx_vlm, mlx_whisper, ultradim' to see why."
@@ -145,8 +169,8 @@ fi
 step "ffmpeg (Voice to text)"
 if command -v ffmpeg >/dev/null 2>&1; then
   say "   ffmpeg: already installed"
-elif command -v brew >/dev/null 2>&1; then
-  run brew install ffmpeg
+elif [ "$HAVE_BREW" = 1 ]; then
+  run brew install ffmpeg || say "   ffmpeg did not install; Voice to text still works, without its whole-recording transcript"
 else
   say "   ffmpeg is missing and Homebrew is not installed. Voice to text works,"
   say "   but its whole-recording transcript needs ffmpeg: install Homebrew"
@@ -182,6 +206,10 @@ else
   step "Starting faxl"
 fi
 
+HOLDER="$(lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | head -1 || true)"
+if [ -n "$HOLDER" ] && [ "$DRY" = 0 ] && ! proxy_pids | grep -qx "$HOLDER"; then
+  fail "port $PORT is in use by $(ps -o comm= -p "$HOLDER" 2>/dev/null || echo "process $HOLDER") (pid $HOLDER), which is not faxl. Stop it, or start faxl on another port: FAXL_PORT=8768 ./install.sh"
+fi
 LAUNCHER="$("$PY" -c 'import os, faxl.engine as e; print(os.path.join(os.path.dirname(e.__file__), "faxl_start.sh"))' 2>/dev/null || true)"
 if [ "$DRY" = 1 ]; then
   say "   would start faxl with its launcher (FAXL_PYTHON=$PY)"
