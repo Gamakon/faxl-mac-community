@@ -14,6 +14,22 @@ with a few hundred tokens left to process.*
 
 ## Install
 
+The quick way, which also upgrades an existing install:
+
+```bash
+git clone https://github.com/Gamakon/faxl-mac-community.git
+cd faxl-mac-community
+./install.sh
+```
+
+`install.sh` gets the latest release, installs everything (including ffmpeg
+through Homebrew), and starts faxl. If faxl is already running, it upgrades
+that install and restarts it, waiting for the old one to exit first. Your
+licence, cache, models and settings are kept. `./install.sh --dry-run` shows
+what it would do without changing anything.
+
+### By hand
+
 Needs a Mac with Apple silicon, Python 3.12+, and git. Homebrew is needed for
 ffmpeg (step 4).
 
@@ -61,6 +77,12 @@ Tested unmodified with these agents (setup notes under
 Any other OpenAI-compatible client works the same way.
 
 ## Upgrade
+
+```bash
+cd faxl-mac-community && ./install.sh
+```
+
+Or by hand:
 
 ```bash
 cd faxl-mac-community && git pull
