@@ -14,17 +14,33 @@ with a few hundred tokens left to process.*
 
 ## Install
 
-Needs Apple silicon and Python 3.12+.
+Needs a Mac with Apple silicon, Python 3.12+, and git. Homebrew is needed for
+ffmpeg (step 4).
 
 ```bash
+# 1. get the files (the two wheels are in this repository)
+git clone https://github.com/Gamakon/faxl-mac-community.git
+cd faxl-mac-community
+
+# 2. a Python environment for faxl
 python3 -m venv faxl-env && source faxl-env/bin/activate
+
+# 3. faxl, the index, and everything they run on
 pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
             ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
+
+# 4. ffmpeg, for Voice to text's whole-recording transcript
+brew install ffmpeg
+
+# 5. start faxl
 faxl-proxy
 ```
 
-`[mac]` installs mlx, mlx-lm and mlx-vlm. Without mlx-vlm, vision models refuse
-to start.
+`[mac]` installs mlx, mlx-lm and mlx-vlm (the models), mlx-whisper (Voice to
+text and the chat's Speak button) and the Photos permissions for Tag your
+photos. Without mlx-vlm, models that read pictures refuse to start.
+
+Then:
 
 1. Open `http://127.0.0.1:8767/console`.
 2. Paste your licence key from [faxl.ai](https://faxl.ai) into the Licence panel,
@@ -34,11 +50,25 @@ to start.
    models over 30 GB take several minutes.
 4. Point your client at `http://127.0.0.1:8767/v1`. Any API key string works.
 
+### Works with
+
+Tested unmodified with these agents (setup notes under
+[Agent clients](#agent-clients-hermes-minimax-code-and-others)):
+
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent) by Nous Research
+- [MiniMax Code](https://agent.minimax.io/docs/cli/quick-start)
+
+Any other OpenAI-compatible client works the same way.
+
 ## Upgrade
 
 ```bash
+cd faxl-mac-community && git pull
 pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl
 ```
+
+If you installed before 15 October 2026, also run `pip install mlx-whisper`
+once: Voice to text needs it, and older installs did not include it.
 
 Every release keeps the same filename and version, so without
 `--force-reinstall` pip says it is already installed and changes nothing. Run

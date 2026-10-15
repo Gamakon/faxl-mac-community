@@ -14,6 +14,22 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-15 — Voice to text's speech engine is installed with faxl
+
+**Re-download: only if you installed before today and use Voice to text** —
+or simply run `pip install mlx-whisper` once in your faxl environment.
+
+The `[mac]` install now includes mlx-whisper, the speech engine Voice to text
+and the chat's Speak button need. Before this, the install instructions did
+not bring it in. The README now also says how to get the files (`git clone`),
+that Voice to text needs ffmpeg (`brew install ffmpeg`), and links the agents
+faxl is tested with: Hermes Agent and MiniMax Code.
+
+To upgrade: `git pull`, then `pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl`,
+then restart faxl.
+
+---
+
 ## 2026-10-14 (tenth build) — Image-to-Text OCR removed
 
 **Re-download: optional.** The console no longer offers Image-to-Text OCR; it
