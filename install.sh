@@ -30,7 +30,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FAXL_WHL="faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl"
 UD_WHL="ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl"
-PORT="${FAXL_PORT:-8767}"
+PORT=8767          # faxl's port, always: clients, agents and the docs all use it
 DRY=0; START=1; ENV_DIR=""
 
 while [ $# -gt 0 ]; do
@@ -84,19 +84,33 @@ fi
 [ -f "$HERE/$UD_WHL" ] || fail "$UD_WHL is not next to this script."
 
 # ---- is faxl running? ----------------------------------------------------
-# A proxy is an interpreter running `-m faxl.engine.faxl_proxy` -- matched on
-# the program and its arguments, not on text anywhere in a command line.
+# A faxl proxy is an interpreter running `-m faxl.engine.faxl_proxy` (how
+# faxl's launcher and the console start it) OR the `faxl-proxy` command (how
+# the README starts it: `python .../bin/faxl-proxy`). Matched on the program
+# and its arguments, never on text anywhere in a command line.
 proxy_pids() {
   ps -axo pid=,args= 2>/dev/null | awk '
     $2 ~ /(^|\/)[Pp]ython[0-9.]*$/ {
-      for (i = 3; i < NF; i++)
-        if ($i == "-m" && $(i + 1) == "faxl.engine.faxl_proxy") { print $1; break }
-    }'
+      for (i = 3; i <= NF; i++) {
+        if (i < NF && $i == "-m" && $(i + 1) == "faxl.engine.faxl_proxy") { print $1; break }
+        if ($i ~ /(^|\/)faxl-proxy$/) { print $1; break }
+      }
+    }
+    $2 ~ /(^|\/)faxl-proxy$/ { print $1 }'
 }
+port_pid() { lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | head -1 || true; }
+# faxl run as a launchd service (the shared-server setup) comes straight back
+# when killed, so it is restarted through launchd instead.
+LAUNCHD_LABEL=""
+if launchctl list 2>/dev/null | awk '{print $3}' | grep -qx "ai.faxl.proxy"; then
+  LAUNCHD_LABEL="ai.faxl.proxy"
+fi
 RUNNING_PID="$(proxy_pids | head -1)"
 RUNNING_PY=""
 if [ -n "$RUNNING_PID" ]; then
   RUNNING_PY="$(ps -o args= -p "$RUNNING_PID" | awk '{print $1}')"
+  # started as `.../bin/faxl-proxy`: the environment's Python sits beside it
+  case "$RUNNING_PY" in */faxl-proxy) RUNNING_PY="$(dirname "$RUNNING_PY")/python3" ;; esac
   [ "$(proxy_pids | wc -l | tr -d ' ')" -gt 1 ] && say "   note: more than one faxl proxy is running; upgrading the first (pid $RUNNING_PID)"
 fi
 
@@ -190,26 +204,58 @@ if [ "$START" = 0 ]; then
   exit 0
 fi
 
-if [ -n "$RUNNING_PID" ]; then
-  step "Restarting faxl"
-  say "   stopping pid $RUNNING_PID and waiting for it to exit (large models take a while to release memory)"
-  if [ "$DRY" = 0 ]; then
-    kill "$RUNNING_PID" 2>/dev/null || true
-    waited=0
-    while kill -0 "$RUNNING_PID" 2>/dev/null; do
-      sleep 1; waited=$((waited + 1))
-      [ "$waited" -eq 120 ] && fail "faxl (pid $RUNNING_PID) has not exited after 2 minutes. Wait for it to exit, then run ./install.sh again. Never start a second copy alongside it."
-    done
-    say "   stopped after ${waited}s"
-  fi
+# STOP EVERYTHING ON THE WAY: every faxl proxy, and whatever holds the port.
+# Each is asked to stop (SIGTERM) and waited for -- a model-sized process
+# frees its memory as it exits, and starting the new faxl before then puts two
+# copies of the model in RAM -- and only forced (SIGKILL) after 60 seconds.
+# stop_pid PID WHAT GRACE: SIGTERM, wait, SIGKILL after GRACE seconds.
+stop_pid() {
+  pid="$1"; what="$2"; grace="$3"
+  say "   stopping $what (pid $pid): $(ps -o args= -p "$pid" 2>/dev/null | cut -c1-90)"
+  [ "$DRY" = 1 ] && return 0
+  kill "$pid" 2>/dev/null || true
+  waited=0
+  while kill -0 "$pid" 2>/dev/null; do
+    sleep 1; waited=$((waited + 1))
+    if [ "$waited" -eq "$grace" ]; then
+      say "   pid $pid has not exited after ${grace}s: forcing it"
+      kill -9 "$pid" 2>/dev/null || true
+    fi
+    [ "$waited" -ge $((grace + 30)) ] && fail "pid $pid would not stop. Restart the Mac, then run ./install.sh again."
+  done
+  say "   stopped after ${waited}s"
+}
+if [ -n "$LAUNCHD_LABEL" ]; then
+  step "Restarting faxl (launchd service $LAUNCHD_LABEL)"
 else
-  step "Starting faxl"
+  step "Stopping the old faxl and starting the new one"
 fi
-
-HOLDER="$(lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | head -1 || true)"
-if [ -n "$HOLDER" ] && [ "$DRY" = 0 ] && ! proxy_pids | grep -qx "$HOLDER"; then
-  fail "port $PORT is in use by $(ps -o comm= -p "$HOLDER" 2>/dev/null || echo "process $HOLDER") (pid $HOLDER), which is not faxl. Stop it, or start faxl on another port: FAXL_PORT=8768 ./install.sh"
+if [ -z "$LAUNCHD_LABEL" ]; then
+  # Every faxl, gracefully: a model-sized process frees its memory as it
+  # exits, and the new one must not load the model before then.
+  STOPPED=" "
+  for pid in $(proxy_pids); do stop_pid "$pid" "faxl" 60; STOPPED="$STOPPED$pid "; done
+  # Then port 8767 itself: faxl belongs there and nothing else does. A faxl
+  # this script did not recognise is still stopped gracefully; anything
+  # else is killed off.
+  holder="$(port_pid)"
+  case "$STOPPED" in *" $holder "*) holder="" ;; esac
+  if [ -n "$holder" ]; then
+    if ps -o args= -p "$holder" 2>/dev/null | grep -q "faxl"; then
+      stop_pid "$holder" "faxl on port $PORT" 60
+    else
+      stop_pid "$holder" "$(ps -o comm= -p "$holder" 2>/dev/null | xargs basename 2>/dev/null) on port $PORT (not faxl)" 10
+    fi
+  fi
+  if [ "$DRY" = 0 ] && [ -n "$(port_pid)" ]; then
+    fail "port $PORT is still in use by pid $(port_pid) after stopping it. Restart the Mac, then run ./install.sh again."
+  fi
+  [ -z "$(proxy_pids)$(port_pid)" ] && say "   nothing of the old faxl is left; port $PORT is free"
 fi
+if [ -n "$LAUNCHD_LABEL" ]; then
+  run launchctl kickstart -k "gui/$(id -u)/$LAUNCHD_LABEL"
+  [ "$DRY" = 1 ] && exit 0
+else
 LAUNCHER="$("$PY" -c 'import os, faxl.engine as e; print(os.path.join(os.path.dirname(e.__file__), "faxl_start.sh"))' 2>/dev/null || true)"
 if [ "$DRY" = 1 ]; then
   say "   would start faxl with its launcher (FAXL_PYTHON=$PY)"
@@ -217,6 +263,7 @@ if [ "$DRY" = 1 ]; then
 fi
 [ -f "$LAUNCHER" ] || fail "faxl's launcher was not found in $PY's install."
 FAXL_PYTHON="$PY" bash "$LAUNCHER" >/dev/null 2>&1 || true
+fi
 
 say "   waiting for faxl to answer on port $PORT (loading a model can take minutes)"
 for _ in $(seq 1 300); do
