@@ -92,6 +92,16 @@ if [ -n "$ENV_DIR" ] && [ -n "$RUNNING_PY" ] && [ "$RUNNING_PY" != "$ENV_DIR/bin
   say "   environment from --env; it is left alone and not restarted"
   RUNNING_PID=""; RUNNING_PY=""
 fi
+if [ -n "$RUNNING_PY" ] && [ ! -x "$RUNNING_PY" ]; then
+  # THE RUNNING FAXL'S ENVIRONMENT HAS BEEN DELETED -- typically a fresh
+  # clone over the old folder. The process keeps running from the deleted
+  # files; there is nothing left to upgrade. Install a new environment here,
+  # then replace the orphaned faxl with it (stop, wait, start).
+  say "   faxl is running (pid $RUNNING_PID), but its environment is gone:"
+  say "   $RUNNING_PY no longer exists (the folder was probably deleted or re-cloned)."
+  say "   A new environment will be installed, and that faxl replaced by the new one."
+  RUNNING_PY=""
+fi
 if [ -n "$RUNNING_PY" ]; then
   PY="$RUNNING_PY"
   say "   faxl is running (pid $RUNNING_PID) from $PY"
@@ -99,7 +109,7 @@ if [ -n "$RUNNING_PY" ]; then
 else
   ENV_DIR="${ENV_DIR:-$HERE/faxl-env}"
   PY="$ENV_DIR/bin/python"
-  [ "$OTHER_RUNNING" = 1 ] || say "   faxl is not running"
+  [ "$OTHER_RUNNING" = 1 ] || [ -n "$RUNNING_PID" ] || say "   faxl is not running"
   if [ -x "$PY" ]; then
     say "   upgrading $ENV_DIR"
   else
