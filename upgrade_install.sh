@@ -108,9 +108,19 @@ fi
 RUNNING_PID="$(proxy_pids | head -1)"
 RUNNING_PY=""
 if [ -n "$RUNNING_PID" ]; then
-  RUNNING_PY="$(ps -o args= -p "$RUNNING_PID" | awk '{print $1}')"
-  # started as `.../bin/faxl-proxy`: the environment's Python sits beside it
-  case "$RUNNING_PY" in */faxl-proxy) RUNNING_PY="$(dirname "$RUNNING_PY")/python3" ;; esac
+  # WHICH ENVIRONMENT IS IT RUNNING FROM? Read from the faxl files the
+  # process has open (.../ENV/lib/pythonX.Y/site-packages/faxl/...), not from
+  # its command line: Homebrew's Python re-executes itself as
+  # .../Python.app/Contents/MacOS/Python, so the command line names the base
+  # Python and an upgrade would land there instead of in the environment.
+  FAXL_SO="$(lsof -p "$RUNNING_PID" -Fn 2>/dev/null | sed -n 's/^n//p' | grep -m1 '/site-packages/faxl/' || true)"
+  if [ -n "$FAXL_SO" ]; then
+    RUNNING_PY="${FAXL_SO%%/lib/python*}/bin/python"
+  else
+    RUNNING_PY="$(ps -o args= -p "$RUNNING_PID" | awk '{print $1}')"
+    # started as `.../bin/faxl-proxy`: the environment's Python sits beside it
+    case "$RUNNING_PY" in */faxl-proxy) RUNNING_PY="$(dirname "$RUNNING_PY")/python3" ;; esac
+  fi
   [ "$(proxy_pids | wc -l | tr -d ' ')" -gt 1 ] && say "   note: more than one faxl proxy is running; upgrading the first (pid $RUNNING_PID)"
 fi
 

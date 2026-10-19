@@ -75,24 +75,22 @@ repeated prompts start hitting the cache — that difference is the product.
 Everything below runs on your Mac. No photograph, recording or document
 leaves it, and there is no account to create.
 
-**Tag your camera roll** — `/console/apps/cameraroll`
-Press **Choose…** and pick some photographs; macOS shows its own picker, and
-faxl can read only what you select. Then **Start tagging**. Each photograph
-gets a caption, a scene description, any text in the image, and keywords —
-written back into Photos if you leave that box ticked, so they become
-searchable. Watch the pipeline: photographs move through it, and the panel
-shows the tokens reused on every one after the first.
+**Tag your photos** — `/console/apps/cameraroll`
+Captions and keywords for a folder of photos (a camera card, a download) or,
+on a Mac, your Apple Photos library. JPEGs get the tags written inside the
+photo; HEIC, PNG, TIFF and raw files get an `.xmp` file beside them, which
+Lightroom, Capture One, digiKam and darktable read. The pictures themselves
+are never changed, and every result also goes into `catalogue.csv` in the
+folder. It needs a model that reads pictures; if yours does not, the page
+offers to switch to one on your Mac or download one.
 
 **Voice to text** — `/console/apps/voice2text`
 Record, and it transcribes locally with Whisper (ffmpeg decodes the audio).
-Long recordings are transcribed in pieces as you speak and then re-done whole
-for the authoritative text.
+Words appear as you speak, cleaned up by the model; when you press Stop the
+whole recording is transcribed again for the text to keep.
 
-**Read the text (OCR)** — `/console/apps/ocr`
-Drop in a photograph of a page, receipt or sign; get clean text back.
-
-**Whiteboard to diagram** — `/console/apps/whiteboard`
-Photograph a hand-drawn diagram; get Mermaid source you can paste into a doc.
+**Speak in the chat** — the **Speak** button under the console's chat box
+puts what you say into the box, for you to check and send.
 
 ## Use it as a proxy
 Point **any** OpenAI-compatible client at `http://127.0.0.1:8767/v1` (any api
@@ -196,8 +194,8 @@ start/stop/status/licence/metrics as typed tools.
   The files are written `0600` in a `0700` directory, so other users on the
   same Mac cannot read them, but treat the store as sensitive as the prompts
   that went into it. Nothing leaves your machine.
-- This build stops accelerating ~12 months after it was built; ask for a fresh
-  build (faxl.ai) if you need longer.
+- This build has no expiry of its own: the cache works for as long as your
+  licence key runs.
 - The proxy serves on port **8767** (it was 8080 in builds before
   2026-09-15). `FAXL_PORT` overrides it.
 - Licence keys: this build reads both the JSON keys the shop mints today and
