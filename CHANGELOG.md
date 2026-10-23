@@ -18,7 +18,7 @@ tells you who a key is for and when it runs out.
 
 **Re-download: yes, if you want either change.** Run `./upgrade_install.sh`.
 
-- The Models drawer has a **Download to this machine** button. Type
+- The top bar has an **add model…** button. It opens the Models drawer, which has a **Download to this machine** button. Type
   `org/name`, watch the progress, and press **Switch to it** when it
   finishes. A model bigger than your free memory asks first (**Download
   anyway**); a gated one offers to open the Hugging Face token drawer.
