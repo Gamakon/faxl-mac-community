@@ -11,6 +11,13 @@ This file is self-sufficient: everything below can be done by hand with a
 shell. An MCP server is also included (see "MCP server" below) if your
 environment supports typed tools.
 
+## Finding your way around a running faxl
+
+`GET http://127.0.0.1:8767/llms.txt` (also `/`) describes the console and the
+calls for adding and switching models. `/health` and `/v1/models` carry a
+`console` link to the agent view, `/console?mode=agent`; every console page has
+an agent view (`?mode=agent`, or `?format=json` / `?format=text`).
+
 ## Install (once per machine)
 
 Apple silicon Mac, Python 3.12 or newer (both wheels are `abi3`).

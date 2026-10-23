@@ -62,8 +62,11 @@ Then:
 2. Paste your licence key from [faxl.ai](https://faxl.ai) into the Licence panel,
    then restart. The key is read once at startup. Without a key the proxy still
    serves every request, but caches nothing.
-3. Pick a model in the console. The first load downloads it from HuggingFace;
-   models over 30 GB take several minutes.
+3. Pick a model in the console's top bar. To bring in one you do not have yet,
+   press **add model…** in the top bar, type its HuggingFace id (`org/name`)
+   and press **Download to this machine**; when it finishes, press **Switch to
+   it**. Models over 30 GB take several minutes. A gated model needs your
+   HuggingFace token first (the **hf_token** button in the top bar).
 4. Point your client at `http://127.0.0.1:8767/v1`. Any API key string works.
 
 ### Works with

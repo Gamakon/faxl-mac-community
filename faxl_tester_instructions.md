@@ -48,7 +48,7 @@ Then open **http://127.0.0.1:8767/console**.
 
 First run downloads the default model, `mlx-community/Qwen3-VL-4B-Instruct-4bit`
 — **2.9 GB**, and it runs on any modern Mac. It reads images as well as text,
-which is what the apps need. A different MLX model: pick one in the console,
+which is what the apps need. A different MLX model: pick one in the console (the **add model…** button in the top bar downloads one from Hugging Face),
 or `export FAXL_MODEL=<mlx-community/repo>` before starting.
 
 ## Put your licence in

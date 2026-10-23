@@ -22,6 +22,10 @@ tells you who a key is for and when it runs out.
   `org/name`, watch the progress, and press **Switch to it** when it
   finishes. A model bigger than your free memory asks first (**Download
   anyway**); a gated one offers to open the Hugging Face token drawer.
+- A download Hugging Face refuses says why in plain words: if a token is
+  saved it says the token was used and refused; if none is saved it says the
+  name may be wrong or a token may be needed (Hugging Face answers "no access"
+  for names that do not exist).
 - An agent that reaches faxl is now pointed at the agent console: `/llms.txt`
   (also served at `/`), and a `console` link in `/health` and `/v1/models`.
   The Models page's agent views list the working download and switch calls.
