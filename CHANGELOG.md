@@ -14,6 +14,20 @@ tells you who a key is for and when it runs out.
 
 ---
 
+## 2026-10-23 — Add a model from Hugging Face in the console; agents can find the console
+
+**Re-download: yes, if you want either change.** Run `./upgrade_install.sh`.
+
+- The Models drawer has a **Download to this machine** button. Type
+  `org/name`, watch the progress, and press **Switch to it** when it
+  finishes. A model bigger than your free memory asks first (**Download
+  anyway**); a gated one offers to open the Hugging Face token drawer.
+- An agent that reaches faxl is now pointed at the agent console: `/llms.txt`
+  (also served at `/`), and a `console` link in `/health` and `/v1/models`.
+  The Models page's agent views list the working download and switch calls.
+
+---
+
 ## 2026-10-15 — Voice to text's speech engine is installed with faxl
 
 **Re-download: only if you installed before today and use Voice to text** —
