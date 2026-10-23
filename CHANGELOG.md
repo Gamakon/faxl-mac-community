@@ -22,6 +22,13 @@ tells you who a key is for and when it runs out.
   `org/name`, watch the progress, and press **Switch to it** when it
   finishes. A model bigger than your free memory asks first (**Download
   anyway**); a gated one offers to open the Hugging Face token drawer.
+- **Your Hugging Face token can be saved, found and replaced.** Before, once
+  faxl had started with a saved token, the settings page read faxl's own copy
+  as "set in the environment", locked the field, and refused any later save.
+  Now the box shows dots when a token is found, **Save token** stores it at
+  once with no restart, and typing over the dots replaces it. The token is in
+  `~/.faxl/hf-token` (readable only by you); upgrading or reinstalling faxl
+  does not touch it.
 - A download Hugging Face refuses says why in plain words: if a token is
   saved it says the token was used and refused; if none is saved it says the
   name may be wrong or a token may be needed (Hugging Face answers "no access"
