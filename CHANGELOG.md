@@ -15,12 +15,18 @@ tells you who a key is for and when it runs out.
 
 ---
 
-## 2026-10-24 — faxl 0.2.0: long conversations resume faster
+## 2026-10-24 — faxl 0.2.0: long conversations resume about ten times faster
 
 **Re-download: yes, if you run long conversations** (a coding agent, for
 example). Run `./upgrade_install.sh`. The wheel is now named
 `faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl`; anything of yours that names the
 old `0.1.0` file needs the new name.
+
+**The speed-up is approximately 10x for some models and workloads.** It is
+largest on long conversations that resume from the cache, such as a coding
+agent working through a long session; the measurement below is 13.4 s to 1.4 s
+at the median. How much you gain depends on the model and the workload. Short
+prompts never paid this cost and do not change.
 
 Two cache changes, both measured on live traffic from a coding agent working
 on long conversations, on one machine:
