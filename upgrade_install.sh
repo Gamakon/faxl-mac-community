@@ -28,7 +28,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FAXL_WHL="faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl"
+FAXL_WHL="faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl"
 UD_WHL="ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl"
 PORT=8767          # faxl's port, always: clients, agents and the docs all use it
 DRY=0; START=1; ENV_DIR=""

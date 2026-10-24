@@ -34,7 +34,7 @@ state. The console shows the tokens it did not have to process.
 
 ```bash
 python3 -m venv faxl-env && source faxl-env/bin/activate
-pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+pip install './faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
             ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
 faxl-proxy
 ```

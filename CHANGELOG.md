@@ -2,15 +2,49 @@
 
 What changed in each published wheel, and whether you need to re-download.
 
-The wheel keeps the same filename every release, so to see which build you
-are running:
+Every wheel up to 2026-10-23 was named `faxl-0.1.0-...` whatever it contained.
+From 0.2.0 the version is in the filename. To see which version you are
+running, inside your faxl environment:
 
-    curl -s localhost:8767/health
+    pip show faxl
 
 From 2026-09-26 this is the PRODUCTION build and its life is your licence
 key's, not the wheel's. `EXPIRY_EPOCH.txt` described the old time-limited
 tester builds and no longer applies; `curl -s localhost:8767/api/licence`
 tells you who a key is for and when it runs out.
+
+---
+
+## 2026-10-24 — faxl 0.2.0: long conversations resume faster
+
+**Re-download: yes, if you run long conversations** (a coding agent, for
+example). Run `./upgrade_install.sh`. The wheel is now named
+`faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl`; anything of yours that names the
+old `0.1.0` file needs the new name.
+
+Two cache changes, both measured on live traffic from a coding agent working
+on long conversations, on one machine:
+
+- **The first token no longer waits for the similarity key.** Before, faxl
+  read the whole cached prefix to build that key before generation began:
+  about 171 ms per 1,000 tokens, a median of 10.8 s, 80.6% of time to first
+  token. The key is now attached after the first token. The keys are still
+  stored, so the analytics corpus keeps growing. Time to first token on long
+  warm resumes, median: 13.4 s before, 1.4 s after (126 requests before, 84
+  after; conversation length median 70,912 and 78,336 tokens). Hit rate
+  afterwards: 94.4%, all exact tier. Short prompts never paid this cost and
+  do not change. `FAXL_KEY_DEFER=0` restores the old behaviour.
+- **A store that stayed over its cap after a model switch is fixed.** Eviction
+  measured every model's blobs but chose candidates from the current model's
+  only, so after a switch it found almost nothing to evict, printed "nothing
+  evictable", and the resume point froze while about 20,000 tokens of prefill
+  were paid again on every turn. Eviction now considers every blob in the
+  store.
+
+Also in this build, the changes released earlier on 2026-10-23: a Hugging Face
+token that is saved, found and replaceable; the **add model...** button; and
+faxl now checks a model's weight files, not only its config, before saying it
+can read pictures.
 
 ---
 

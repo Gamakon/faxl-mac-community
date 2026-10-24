@@ -42,7 +42,7 @@ cd faxl-mac-community
 python3 -m venv faxl-env && source faxl-env/bin/activate
 
 # 3. faxl, the index, and everything they run on
-pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+pip install './faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
             ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
 
 # 4. ffmpeg, for Voice to text's whole-recording transcript
@@ -89,7 +89,7 @@ Or by hand:
 
 ```bash
 cd faxl-mac-community && git pull
-pip install --force-reinstall faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl
+pip install --force-reinstall faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl
 ```
 
 If you installed before 15 October 2026, also run `pip install mlx-whisper`

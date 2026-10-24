@@ -23,7 +23,7 @@ an agent view (`?mode=agent`, or `?format=json` / `?format=text`).
 Apple silicon Mac, Python 3.12 or newer (both wheels are `abi3`).
 
 ```sh
-pip install './faxl-0.1.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
+pip install './faxl-0.2.0-cp39-abi3-macosx_11_0_arm64.whl[mac]' \
             ./ultradim-0.5.0-cp312-abi3-macosx_11_0_arm64.whl
 ```
 
